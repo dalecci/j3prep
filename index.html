@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0B1B2D" />
+<meta name="robots" content="noindex, nofollow" />
+<title>J3 Prep · Cape Coral, Florida</title>
+<meta name="description" content="J3 Prep — A preparatory school. Athletics. Academics. 2-hour AI schooling with a sports concentration. Cape Coral, Florida." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0B1B2D;
+    --bg-mid:  #122843;
+    --cream:   #F7F2E6;
+    --cream-soft: #ECE5D3;
+    --gold:    #C8A95C;
+    --gold-bright: #E0BD68;
+    --text:    #F7F2E6;
+    --text-soft: rgba(247, 242, 230, 0.78);
+    --text-mute: rgba(247, 242, 230, 0.52);
+    --line: rgba(247, 242, 230, 0.12);
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body { min-height: 100%; }
+
+  body {
+    font-family: var(--sans);
+    background:
+      radial-gradient(900px 600px at 80% 10%, rgba(200, 169, 92, 0.10), transparent 60%),
+      radial-gradient(700px 500px at 10% 90%, rgba(18, 40, 67, 0.6), transparent 70%),
+      var(--bg-deep);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+
+  /* ---------- Gate ---------- */
+  .gate {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .gate-card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--bg-mid);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 44px 36px 32px;
+    text-align: center;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.55);
+  }
+  .gate-mark {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 1;
+    color: var(--gold);
+    letter-spacing: -0.02em;
+  }
+  .gate-mark small {
+    display: block;
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    margin-top: 14px;
+  }
+  .gate-rule {
+    width: 32px;
+    height: 1px;
+    background: var(--gold);
+    margin: 22px auto;
+    opacity: 0.6;
+  }
+  .gate-sub {
+    color: var(--text-mute);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 26px;
+  }
+  .pin-input {
+    width: 100%;
+    background: var(--bg-deep);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 24px;
+    text-align: center;
+    letter-spacing: 14px;
+    padding: 16px 8px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .pin-input::placeholder { color: rgba(247, 242, 230, 0.25); letter-spacing: 14px; }
+  .pin-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200, 169, 92, 0.18); }
+  .pin-input.error {
+    border-color: #d05a5a;
+    box-shadow: 0 0 0 3px rgba(208, 90, 90, 0.2);
+    animation: shake 0.4s;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  .gate-btn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 15px;
+    background: var(--gold);
+    color: var(--bg-deep);
+    border: none;
+    border-radius: 2px;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 150ms ease;
+  }
+  .gate-btn:hover { background: var(--gold-bright); }
+  .gate-btn:active { transform: scale(0.98); }
+  .gate-hint {
+    color: var(--text-mute);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 22px;
+  }
+
+  /* ---------- Main ---------- */
+  main { display: none; min-height: 100vh; }
+  main.show { display: block; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* Header */
+  header.site {
+    padding: 32px 0 0;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 28px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .brand-mark {
+    width: 44px;
+    height: 44px;
+    border: 1.5px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-weight: 600;
+    color: var(--gold);
+    font-size: 18px;
+    letter-spacing: -0.02em;
+  }
+  .brand-text {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .brand-text small {
+    display: block;
+    font-family: var(--sans);
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+  .nav-meta {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    text-align: right;
+  }
+  .lock-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text-mute);
+    padding: 8px 14px;
+    border-radius: 2px;
+    font-family: var(--sans);
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: color 150ms ease, border-color 150ms ease;
+  }
+  .lock-btn:hover { color: var(--gold); border-color: var(--gold); }
+
+  /* Hero */
+  .hero {
+    padding: 96px 0 120px;
+    position: relative;
+  }
+  .hero-kicker {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .hero-kicker::before {
+    content: '';
+    width: 36px;
+    height: 1px;
+    background: var(--gold);
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(3.6rem, 10vw, 8.8rem);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    max-width: 14ch;
+    margin-bottom: 8px;
+  }
+  .hero h1 .ampersand {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+  }
+  .pillars {
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin: 28px 0 48px;
+  }
+  .pillars .dot {
+    width: 5px; height: 5px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .lead {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(1.25rem, 2.2vw, 1.7rem);
+    line-height: 1.45;
+    color: var(--text-soft);
+    max-width: 28ch;
+    margin-bottom: 40px;
+  }
+  .lead em { color: var(--gold); font-style: italic; }
+
+  .hero-monogram {
+    position: absolute;
+    right: -3vw;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(14rem, 28vw, 28rem);
+    color: var(--gold);
+    opacity: 0.05;
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  .hero-inner { position: relative; z-index: 1; }
+
+  /* Mid block — three statements */
+  .statements {
+    padding: 80px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .statement-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+  }
+  @media (max-width: 800px) {
+    .statement-grid { grid-template-columns: 1fr; gap: 32px; }
+  }
+  .statement-num {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  .statement-num::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    background: var(--gold);
+    vertical-align: middle;
+    margin-right: 10px;
+    margin-bottom: 4px;
+  }
+  .statement-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.4rem;
+    line-height: 1.25;
+    color: var(--text);
+    margin-bottom: 14px;
+    letter-spacing: -0.015em;
+  }
+  .statement-body {
+    color: var(--text-mute);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  /* Closing line */
+  .closing {
+    padding: 120px 0 100px;
+    text-align: center;
+  }
+  .closing-text {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(1.4rem, 3vw, 2.4rem);
+    line-height: 1.35;
+    color: var(--text);
+    max-width: 22ch;
+    margin: 0 auto 36px;
+    letter-spacing: -0.01em;
+  }
+  .closing-text em { color: var(--gold); font-style: italic; }
+  .closing-meta {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+  }
+
+  /* Footer */
+  footer.site {
+    border-top: 1px solid var(--line);
+    padding: 28px 0;
+  }
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+  }
+  .foot a { color: var(--gold); text-decoration: none; }
+  .foot a:hover { color: var(--gold-bright); }
+
+  @media (max-width: 700px) {
+    .wrap { padding: 0 24px; }
+    .hero { padding: 60px 0 80px; }
+    .closing { padding: 80px 0 60px; }
+    .statements { padding: 60px 0; }
+    .foot { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Gate -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-mark">
+      J3 Prep
+      <small>Cape Coral · Florida</small>
+    </div>
+    <div class="gate-rule"></div>
+    <div class="gate-sub">Private preview</div>
+    <input
+      type="password"
+      inputmode="numeric"
+      pattern="[0-9]*"
+      maxlength="4"
+      class="pin-input"
+      id="pin"
+      placeholder="••••"
+      autocomplete="off" />
+    <button class="gate-btn" id="unlockBtn">Enter</button>
+    <div class="gate-hint">Four-digit code</div>
+  </div>
+</div>
+
+<!-- Main site -->
+<main id="main">
+
+  <header class="site">
+    <div class="wrap">
+      <div class="nav">
+        <a href="#" class="brand">
+          <span class="brand-mark">J3</span>
+          <span class="brand-text">
+            J3 Prep
+            <small>Preparatory · Florida</small>
+          </span>
+        </a>
+        <div>
+          <div class="nav-meta">Cape Coral · Florida</div>
+          <button class="lock-btn" id="lockBtn">Lock</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <span class="hero-monogram" aria-hidden="true">J3</span>
+      <div class="hero-inner">
+        <span class="hero-kicker">A preparatory school · 2026 cohort</span>
+        <h1>Athletics <span class="ampersand">&amp;</span> Academics.</h1>
+        <div class="pillars">
+          <span>Athletics</span>
+          <span class="dot"></span>
+          <span>Academics</span>
+        </div>
+        <p class="lead">
+          Two-hour, <em>AI-augmented</em> schooling with a serious <em>sports concentration</em>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="statements">
+    <div class="wrap">
+      <div class="statement-grid">
+        <div>
+          <div class="statement-num">01 / Academics</div>
+          <div class="statement-title">Two hours. The whole curriculum.</div>
+          <div class="statement-body">
+            Personalized, AI-augmented learning that compresses a full secondary curriculum into a focused two-hour block. NCAA academic eligibility preserved from day one.
+          </div>
+        </div>
+        <div>
+          <div class="statement-num">02 / Athletics</div>
+          <div class="statement-title">A serious sports concentration.</div>
+          <div class="statement-body">
+            Elite training, on-court development, and strength and conditioning inside the school day — not bolted on after it. Built for the kid who refuses to choose.
+          </div>
+        </div>
+        <div>
+          <div class="statement-num">03 / Family Life</div>
+          <div class="statement-title">Time given back.</div>
+          <div class="statement-body">
+            Compressed school plus integrated training means evenings and weekends return to where they belong: family, rest, the rest of the kid's life.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="wrap">
+      <h2 class="closing-text">
+        The future of <em>learning</em>,<br/>
+        <em>athletics</em>, and <em>family life</em>.
+      </h2>
+      <div class="closing-meta">Coming soon · Cape Coral · Florida</div>
+    </div>
+  </section>
+
+  <footer class="site">
+    <div class="wrap">
+      <div class="foot">
+        <span>&copy; <span id="year"></span> J3 Prep · Cape Coral, Florida</span>
+        <span>Sister program · <a href="https://j3hoops.com" target="_blank" rel="noopener">J3 Hoops →</a></span>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  // Note: this gate is a UX layer, NOT real security. The page is public.
+  // Keep that in mind before putting anything sensitive behind it.
+  const PIN = "4545";
+  const KEY = "j3-prep-unlocked";
+
+  const gate = document.getElementById("gate");
+  const main = document.getElementById("main");
+  const pin = document.getElementById("pin");
+  const unlockBtn = document.getElementById("unlockBtn");
+  const lockBtn = document.getElementById("lockBtn");
+
+  function unlock() {
+    gate.style.display = "none";
+    main.classList.add("show");
+  }
+  function lock() {
+    sessionStorage.removeItem(KEY);
+    gate.style.display = "flex";
+    main.classList.remove("show");
+    pin.value = "";
+    setTimeout(() => pin.focus(), 50);
+  }
+  function tryUnlock() {
+    if (pin.value === PIN) {
+      sessionStorage.setItem(KEY, "1");
+      unlock();
+    } else {
+      pin.classList.add("error");
+      pin.value = "";
+      setTimeout(() => pin.classList.remove("error"), 500);
+      pin.focus();
+    }
+  }
+
+  unlockBtn.addEventListener("click", tryUnlock);
+  pin.addEventListener("keydown", (e) => { if (e.key === "Enter") tryUnlock(); });
+  lockBtn.addEventListener("click", lock);
+
+  if (sessionStorage.getItem(KEY) === "1") {
+    unlock();
+  } else {
+    setTimeout(() => pin.focus(), 100);
+  }
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
