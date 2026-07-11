@@ -177,6 +177,13 @@ function behaviorWeek(kidId, ref) {
   const red = kp.filter(function (p) { return p.amount < 0; }).reduce(function (s, p) { return s + Math.abs(p.amount); }, 0);
   return { green: green, red: red, net: green - red };
 }
+// Behavior green/red/net all-time (across all weeks/months) for a kid.
+function behaviorTotal(kidId) {
+  const kp = state.points.filter(function (p) { return p.kid_id === kidId; });
+  const green = kp.filter(function (p) { return p.amount > 0; }).reduce(function (s, p) { return s + p.amount; }, 0);
+  const red = kp.filter(function (p) { return p.amount < 0; }).reduce(function (s, p) { return s + Math.abs(p.amount); }, 0);
+  return { green: green, red: red, net: green - red };
+}
 function weekScore(kidId, ref) {
   return taskPointsWeek(kidId, ref) + behaviorWeek(kidId, ref).net;
 }
@@ -249,6 +256,10 @@ function renderKid() {
   document.getElementById('bhGreen').textContent = bhb.green;
   document.getElementById('bhRed').textContent = bhb.red;
   document.getElementById('bhNet').textContent = bhb.net;
+  const bhAll = behaviorTotal(state.currentKidId);
+  document.getElementById('bhGreenAll').textContent = bhAll.green;
+  document.getElementById('bhRedAll').textContent = bhAll.red;
+  document.getElementById('bhNetAll').textContent = bhAll.net;
   renderKidRewards();
 }
 
@@ -425,6 +436,7 @@ function renderOverview() {
   detail.innerHTML = state.kids.map(function (k) {
     const tPts = taskPointsWeek(k.id);
     const bh = behaviorWeek(k.id);
+    const bhAll = behaviorTotal(k.id);
     const dayTasks = tasksForDay(k.id, state.today);
     const done = dayTasks.filter(function (t) { return isDone(k.id, t.id, state.today); }).length;
     const prog = state.progress.filter(function (p) { return p.kid_id === k.id; });
@@ -434,7 +446,7 @@ function renderOverview() {
     if (behind.length) ascend = '<span class="pill behind">' + behind.length + ' behind</span>';
     else if (ahead.length) ascend = '<span class="pill ahead">' + ahead.length + ' ahead</span>';
     return '<div class="list-item"><div class="grow"><b>' + escapeHtml(k.name) + '</b> · ' + escapeHtml(gradeFor(k.name)) +
-      '<div class="meta">Today ' + done + '/' + dayTasks.length + ' done · tasks +' + tPts + ' · 🟢' + bh.green + ' 🔴' + bh.red + '</div></div>' +
+      '<div class="meta">Today ' + done + '/' + dayTasks.length + ' done · tasks +' + tPts + ' · wk 🟢' + bh.green + ' 🔴' + bh.red + ' · total net ' + bhAll.net + '</div></div>' +
       '<div>' + ascend + '</div></div>';
   }).join('');
 }
