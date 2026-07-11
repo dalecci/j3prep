@@ -113,6 +113,7 @@
   .pill.behind { background: var(--red-soft); color: var(--red); }
   .pill.ontrack { background: var(--accent-soft); color: var(--accent); }
 
+  .behavior-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
   .behavior-split { display: flex; gap: 10px; }
   .behavior-split .bx { flex: 1; text-align: center; background: var(--panel-2); border-radius: 12px; padding: 12px; }
   .behavior-split .bx .n { font-size: 26px; font-weight: 800; }
@@ -228,13 +229,20 @@
   </div>
 
   <div class="card">
-    <h3>Behavior points this week</h3>
+    <h3>Behavior points</h3>
+    <div class="behavior-label">This week</div>
     <div class="behavior-split">
       <div class="bx g"><div class="n" id="bhGreen">0</div><div class="l">🟢 green</div></div>
       <div class="bx r"><div class="n" id="bhRed">0</div><div class="l">🔴 red</div></div>
       <div class="bx net"><div class="n" id="bhNet">0</div><div class="l">net</div></div>
     </div>
-    <div class="empty" id="bhNote" style="padding-top:12px;padding-bottom:0;">Green points add to your weekly score, red points take away.</div>
+    <div class="behavior-label" style="margin-top:14px;">All-time total</div>
+    <div class="behavior-split">
+      <div class="bx g"><div class="n" id="bhGreenAll">0</div><div class="l">🟢 green</div></div>
+      <div class="bx r"><div class="n" id="bhRedAll">0</div><div class="l">🔴 red</div></div>
+      <div class="bx net"><div class="n" id="bhNetAll">0</div><div class="l">net</div></div>
+    </div>
+    <div class="empty" id="bhNote" style="padding-top:12px;padding-bottom:0;">This week's green points add to your weekly score. The total keeps counting across weeks and months.</div>
   </div>
 
   <div class="card">
