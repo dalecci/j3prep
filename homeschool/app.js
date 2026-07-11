@@ -63,6 +63,36 @@ function prettyDate(key) {
 }
 function gradeFor(name) { return GRADES[(name || '').trim().toLowerCase().split(' ')[0]] || 'Student'; }
 
+// ---------- shared-resource stagger (1 computer for Math, 1 basket for Shooting) ----------
+// Contended tasks get a per-child start time so the resource is never double-booked.
+// Order = oldest first (grade rank desc). Each child's slot is back-to-back after the previous.
+const STAGGER = {
+  'Math (Part 1)': { base: '09:15', step: 60, resource: '🖥️ computer' },
+  'Math (Part 2)': { base: '09:45', step: 60, resource: '🖥️ computer' },
+  '200 shots':     { base: '12:45', step: 35, resource: '🏀 basket' },
+};
+function timeToMin(hhmm) { const p = (hhmm || '00:00').split(':'); return (+p[0]) * 60 + (+p[1]); }
+function minToTime(m) { m = ((m % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + ':' + pad(m % 60); }
+function gradeRank(name) {
+  const g = gradeFor(name);
+  const mm = /Grade\s*(\d+)/i.exec(g);
+  if (mm) return parseInt(mm[1], 10);
+  if (/kinder/i.test(g)) return 0;
+  return -1;
+}
+function rotationOrder() {
+  return state.kids.slice().sort(function (a, b) { return gradeRank(b.name) - gradeRank(a.name); });
+}
+function rotationIndex(kidId) {
+  return Math.max(0, rotationOrder().findIndex(function (k) { return k.id === kidId; }));
+}
+// Returns the staggered start time for a contended task/kid, or null if not staggered.
+function staggeredStart(taskTitle, kidId) {
+  const cfg = STAGGER[taskTitle];
+  if (!cfg) return null;
+  return minToTime(timeToMin(cfg.base) + rotationIndex(kidId) * cfg.step);
+}
+
 // ---------- toast ----------
 function toast(msg, type) {
   type = type || '';
@@ -158,8 +188,10 @@ async function loadAll() {
 // Tasks a kid should see on a given date = active template tasks + custom tasks for that date/kid.
 function tasksForDay(kidId, dayKey) {
   const template = state.tasks.map(function (t) {
-    return { id: t.id, title: t.title, icon: t.icon, start_time: t.start_time,
-      duration_min: t.duration_min, target: t.target, points: t.points, category: t.category, source: 'template' };
+    const st = staggeredStart(t.title, kidId);
+    return { id: t.id, title: t.title, icon: t.icon, start_time: st || t.start_time,
+      duration_min: t.duration_min, target: t.target, points: t.points, category: t.category,
+      source: 'template', resource: st ? (STAGGER[t.title] || {}).resource : null };
   });
   const customs = state.custom.filter(function (c) {
     return c.task_date === dayKey && (c.kid_id === null || c.kid_id === kidId);
@@ -308,6 +340,7 @@ function renderTaskList(elId, kidId, dayKey, adminMode) {
     const meta = [];
     if (t.target) meta.push(escapeHtml(t.target));
     else if (t.duration_min) meta.push(t.duration_min + ' min');
+    if (t.resource) meta.push('your turn · ' + t.resource);
     const tag = t.source === 'custom' ? '<span class="custom-tag">EXTRA</span>' : '';
     row.innerHTML =
       '<div class="task-time">' + (t.start_time || '') + '</div>' +
@@ -522,7 +555,29 @@ function renderAdminToday() {
   if (state.adminKidId) renderTaskList('adminTaskList', state.adminKidId, state.today, true);
 }
 
+function renderRotation() {
+  const table = document.getElementById('rotationTable');
+  if (!table) return;
+  const order = rotationOrder();
+  const rows = Object.keys(STAGGER);
+  let head = '<thead><tr><th class="task-col">Activity</th>';
+  order.forEach(function (k) { head += '<th>' + escapeHtml(k.name) + '</th>'; });
+  head += '</tr></thead>';
+  let body = '<tbody>';
+  rows.forEach(function (title) {
+    const cfg = STAGGER[title];
+    body += '<tr><td class="task-col"><span class="task-col-icon">' + (cfg.resource.split(' ')[0]) + '</span>' + escapeHtml(title) + '</td>';
+    order.forEach(function (k) {
+      const start = staggeredStart(title, k.id);
+      body += '<td>' + start + '</td>';
+    });
+    body += '</tr>';
+  });
+  body += '</tbody>';
+  table.innerHTML = head + body;
+}
 function renderAdminSchedule() {
+  renderRotation();
   const wrap = document.getElementById('adminSchedule');
   const tasks = state.tasks.slice().sort(function (a, b) {
     const at = a.start_time || '99:99', bt = b.start_time || '99:99';
