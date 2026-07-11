@@ -40,6 +40,22 @@ function weekRange(ref) {
   const end = new Date(start); end.setDate(start.getDate() + 6);
   return { start: dateKey(start), end: dateKey(end) };
 }
+// School week = Monday–Friday (5 days). Returns array of {key, dow, short}.
+function weekdaysOf(ref) {
+  const mon = mondayOf(ref || new Date());
+  const names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  const out = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(mon); d.setDate(mon.getDate() + i);
+    out.push({ key: dateKey(d), dow: names[i], short: (d.getMonth() + 1) + '/' + d.getDate() });
+  }
+  return out;
+}
+function isWeekend(key) {
+  const p = key.split('-');
+  const w = new Date(+p[0], +p[1] - 1, +p[2]).getDay();
+  return w === 0 || w === 6;
+}
 function prettyDate(key) {
   const parts = key.split('-');
   const d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
@@ -244,13 +260,18 @@ function renderKid() {
     '<span>🟢 +' + bh.green + '</span>' +
     '<span>🔴 −' + bh.red + '</span>';
 
-  // today's completion ring
+  // today's completion ring (school is Mon–Fri)
+  const weekend = isWeekend(state.today);
   const dayTasks = tasksForDay(state.currentKidId, state.today);
-  const doneCount = dayTasks.filter(function (t) { return isDone(state.currentKidId, t.id, state.today); }).length;
-  const pct = dayTasks.length ? Math.round((doneCount / dayTasks.length) * 100) : 0;
-  document.getElementById('todayRing').innerHTML = ringSvg(pct, doneCount + '/' + dayTasks.length);
-
-  renderTaskList('taskList', state.currentKidId, state.today, false);
+  if (weekend) {
+    document.getElementById('todayRing').innerHTML = ringSvg(0, 'Weekend');
+    document.getElementById('taskList').innerHTML = '<div class="empty">No school today — enjoy the weekend! 🎉<br>School runs Monday–Friday.</div>';
+  } else {
+    const doneCount = dayTasks.filter(function (t) { return isDone(state.currentKidId, t.id, state.today); }).length;
+    const pct = dayTasks.length ? Math.round((doneCount / dayTasks.length) * 100) : 0;
+    document.getElementById('todayRing').innerHTML = ringSvg(pct, doneCount + '/' + dayTasks.length);
+    renderTaskList('taskList', state.currentKidId, state.today, false);
+  }
   renderKidProgress();
   const bhb = behaviorWeek(state.currentKidId);
   document.getElementById('bhGreen').textContent = bhb.green;
@@ -325,7 +346,7 @@ async function toggleTask(kidId, task, dayKey, adminMode) {
     toast('Could not save: ' + (e.message || e), 'error');
     return;
   }
-  if (adminMode) { renderAdminToday(); renderOverview(); }
+  if (adminMode) { renderAdminToday(); renderAdminWeek(); renderOverview(); }
   else { renderKid(); }
 }
 
@@ -406,22 +427,67 @@ function switchTab(tab) {
   document.querySelectorAll('#adminScreen .tab-content').forEach(function (c) { c.classList.toggle('hidden', c.dataset.tab !== tab); });
 }
 function renderKidSwitchers() {
-  ['kidSwitcherToday', 'kidSwitcherProg'].forEach(function (id) {
+  ['kidSwitcherToday', 'kidSwitcherProg', 'kidSwitcherWeek'].forEach(function (id) {
     const sw = document.getElementById(id);
+    if (!sw) return;
     sw.innerHTML = '';
     state.kids.forEach(function (k) {
       const b = document.createElement('button');
       b.textContent = k.name;
       b.className = k.id === state.adminKidId ? 'active' : '';
       if (k.id === state.adminKidId) b.style.background = k.color || '#3b82f6';
-      b.onclick = function () { state.adminKidId = k.id; renderKidSwitchers(); renderAdminToday(); renderAdminProgress(); };
+      b.onclick = function () { state.adminKidId = k.id; renderKidSwitchers(); renderAdminToday(); renderAdminProgress(); renderAdminWeek(); };
       sw.appendChild(b);
     });
   });
 }
 function renderAdminAll() {
-  renderOverview(); renderAdminToday(); renderAdminSchedule();
+  renderOverview(); renderAdminWeek(); renderAdminToday(); renderAdminSchedule();
   renderAdminProgress(); renderAdminRewards(); renderAdminCustom();
+}
+
+// Parent weekly grid: tasks (rows) x Mon–Fri (cols), did ✓ / did-not ✗ per day.
+function renderAdminWeek() {
+  const table = document.getElementById('weekGrid');
+  if (!table || !state.adminKidId) { if (table) table.innerHTML = ''; return; }
+  const days = weekdaysOf();
+  document.getElementById('weekRangeLabel').textContent = days[0].dow + ' ' + days[0].short + ' – ' + days[4].dow + ' ' + days[4].short;
+
+  const template = state.tasks.slice().sort(function (a, b) {
+    const at = a.start_time || '99:99', bt = b.start_time || '99:99'; return at < bt ? -1 : at > bt ? 1 : 0;
+  });
+
+  let head = '<thead><tr><th class="task-col">Task</th>';
+  days.forEach(function (d) {
+    const cls = d.key === state.today ? ' today-col' : '';
+    head += '<th class="' + cls.trim() + '">' + d.dow + '<br>' + d.short + '</th>';
+  });
+  head += '</tr></thead>';
+
+  let body = '<tbody>';
+  template.forEach(function (t) {
+    body += '<tr><td class="task-col"><span class="task-col-icon">' + (t.icon || '📌') + '</span>' + escapeHtml(t.title) + '</td>';
+    days.forEach(function (d) {
+      const todayCls = d.key === state.today ? ' today-col' : '';
+      let cell;
+      if (isDone(state.adminKidId, t.id, d.key)) cell = '<span class="wk-yes">✓</span>';
+      else if (d.key <= state.today) cell = '<span class="wk-no">✗</span>';
+      else cell = '<span class="wk-future">·</span>';
+      body += '<td class="' + todayCls.trim() + '">' + cell + '</td>';
+    });
+    body += '</tr>';
+  });
+  // daily totals row
+  body += '<tr class="total-row"><td class="task-col">Done / total</td>';
+  days.forEach(function (d) {
+    const todayCls = d.key === state.today ? ' today-col' : '';
+    const dt = tasksForDay(state.adminKidId, d.key);
+    const done = dt.filter(function (t) { return isDone(state.adminKidId, t.id, d.key); }).length;
+    body += '<td class="' + todayCls.trim() + '">' + done + '/' + dt.length + '</td>';
+  });
+  body += '</tr></tbody>';
+
+  table.innerHTML = head + body;
 }
 
 function renderOverview() {
