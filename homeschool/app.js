@@ -64,15 +64,9 @@ function prettyDate(key) {
 function gradeFor(name) { return GRADES[(name || '').trim().toLowerCase().split(' ')[0]] || 'Student'; }
 
 // ---------- shared-resource stagger (1 computer for Math, 1 basket for Shooting) ----------
-// Contended tasks get a per-child start time so the resource is never double-booked.
-// Order = oldest first (grade rank desc). Each child's slot is back-to-back after the previous.
-const STAGGER = {
-  'Math (Part 1)': { base: '09:15', step: 60, resource: '🖥️ computer' },
-  'Math (Part 2)': { base: '09:45', step: 60, resource: '🖥️ computer' },
-  '200 shots':     { base: '12:45', step: 35, resource: '🏀 basket' },
-};
 function timeToMin(hhmm) { const p = (hhmm || '00:00').split(':'); return (+p[0]) * 60 + (+p[1]); }
 function minToTime(m) { m = ((m % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + ':' + pad(m % 60); }
+function firstName(name) { return (name || '').trim().toLowerCase().split(' ')[0]; }
 function gradeRank(name) {
   const g = gradeFor(name);
   const mm = /Grade\s*(\d+)/i.exec(g);
@@ -86,11 +80,38 @@ function rotationOrder() {
 function rotationIndex(kidId) {
   return Math.max(0, rotationOrder().findIndex(function (k) { return k.id === kidId; }));
 }
-// Returns the staggered start time for a contended task/kid, or null if not staggered.
-function staggeredStart(taskTitle, kidId) {
-  const cfg = STAGGER[taskTitle];
-  if (!cfg) return null;
-  return minToTime(timeToMin(cfg.base) + rotationIndex(kidId) * cfg.step);
+
+// COMPUTER (Math): one machine, each child's two 30-min sessions are SEPARATED (math → other → math).
+// Jameson (kindergarten) gets ONE 30-min session only. Ordered 30-min slots from COMPUTER_BASE.
+const COMPUTER_BASE = '09:15';
+const COMPUTER_SLOTS = [
+  { kid: 'jayden',  title: 'Math (Part 1)' },
+  { kid: 'jackson', title: 'Math (Part 1)' },
+  { kid: 'jameson', title: 'Math (Part 1)' },   // Jameson's only math session
+  { kid: 'jayden',  title: 'Math (Part 2)' },
+  { kid: 'jackson', title: 'Math (Part 2)' },
+];
+function mathSlotStart(name, title) {
+  const fn = firstName(name);
+  const i = COMPUTER_SLOTS.findIndex(function (s) { return s.kid === fn && s.title === title; });
+  return i < 0 ? null : minToTime(timeToMin(COMPUTER_BASE) + i * 30);
+}
+// BASKET (200 shots): one hoop, staggered oldest-first, back-to-back.
+const SHOT_BASE = '12:45', SHOT_STEP = 35;
+function shotStart(kidId) { return minToTime(timeToMin(SHOT_BASE) + rotationIndex(kidId) * SHOT_STEP); }
+
+// For a contended task + kid returns {start, resource}, {exclude:true} if the kid doesn't do it, or null.
+function contendedSlot(taskTitle, kid) {
+  if (taskTitle === 'Math (Part 1)' || taskTitle === 'Math (Part 2)') {
+    const st = mathSlotStart(kid.name, taskTitle);
+    return st === null ? { exclude: true } : { start: st, resource: '🖥️ computer' };
+  }
+  if (taskTitle === '200 shots') return { start: shotStart(kid.id), resource: '🏀 basket' };
+  return null;
+}
+function taskExcludedForKid(taskTitle, kid) {
+  const s = contendedSlot(taskTitle, kid);
+  return !!(s && s.exclude);
 }
 
 // ---------- toast ----------
@@ -187,11 +208,15 @@ async function loadAll() {
 // ---------- scoring ----------
 // Tasks a kid should see on a given date = active template tasks + custom tasks for that date/kid.
 function tasksForDay(kidId, dayKey) {
-  const template = state.tasks.map(function (t) {
-    const st = staggeredStart(t.title, kidId);
-    return { id: t.id, title: t.title, icon: t.icon, start_time: st || t.start_time,
+  const kid = kidById(kidId) || { id: kidId, name: '' };
+  const template = [];
+  state.tasks.forEach(function (t) {
+    const slot = contendedSlot(t.title, kid);
+    if (slot && slot.exclude) return; // e.g. Jameson has no 2nd math session
+    template.push({ id: t.id, title: t.title, icon: t.icon,
+      start_time: slot ? slot.start : t.start_time,
       duration_min: t.duration_min, target: t.target, points: t.points, category: t.category,
-      source: 'template', resource: st ? (STAGGER[t.title] || {}).resource : null };
+      source: 'template', resource: slot ? slot.resource : null });
   });
   const customs = state.custom.filter(function (c) {
     return c.task_date === dayKey && (c.kid_id === null || c.kid_id === kidId);
@@ -497,13 +522,16 @@ function renderAdminWeek() {
   });
   head += '</tr></thead>';
 
+  const kid = kidById(state.adminKidId) || { id: state.adminKidId, name: '' };
   let body = '<tbody>';
   template.forEach(function (t) {
+    const na = taskExcludedForKid(t.title, kid);
     body += '<tr><td class="task-col"><span class="task-col-icon">' + (t.icon || '📌') + '</span>' + escapeHtml(t.title) + '</td>';
     days.forEach(function (d) {
       const todayCls = d.key === state.today ? ' today-col' : '';
       let cell;
-      if (isDone(state.adminKidId, t.id, d.key)) cell = '<span class="wk-yes">✓</span>';
+      if (na) cell = '<span class="wk-future">n/a</span>';
+      else if (isDone(state.adminKidId, t.id, d.key)) cell = '<span class="wk-yes">✓</span>';
       else if (d.key <= state.today) cell = '<span class="wk-no">✗</span>';
       else cell = '<span class="wk-future">·</span>';
       body += '<td class="' + todayCls.trim() + '">' + cell + '</td>';
@@ -559,17 +587,21 @@ function renderRotation() {
   const table = document.getElementById('rotationTable');
   if (!table) return;
   const order = rotationOrder();
-  const rows = Object.keys(STAGGER);
+  const rows = [
+    { title: 'Math (Part 1)', icon: '🖥️' },
+    { title: 'Math (Part 2)', icon: '🖥️' },
+    { title: '200 shots', icon: '🏀' },
+  ];
   let head = '<thead><tr><th class="task-col">Activity</th>';
   order.forEach(function (k) { head += '<th>' + escapeHtml(k.name) + '</th>'; });
   head += '</tr></thead>';
   let body = '<tbody>';
-  rows.forEach(function (title) {
-    const cfg = STAGGER[title];
-    body += '<tr><td class="task-col"><span class="task-col-icon">' + (cfg.resource.split(' ')[0]) + '</span>' + escapeHtml(title) + '</td>';
+  rows.forEach(function (row) {
+    body += '<tr><td class="task-col"><span class="task-col-icon">' + row.icon + '</span>' + escapeHtml(row.title) + '</td>';
     order.forEach(function (k) {
-      const start = staggeredStart(title, k.id);
-      body += '<td>' + start + '</td>';
+      const slot = contendedSlot(row.title, k);
+      const cell = (slot && slot.exclude) ? '<span class="wk-future">—</span>' : (slot ? slot.start : '');
+      body += '<td>' + cell + '</td>';
     });
     body += '</tr>';
   });
