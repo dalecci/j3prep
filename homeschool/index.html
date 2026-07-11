@@ -161,6 +161,18 @@
   .prog-edit-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr auto; gap: 6px; align-items: center; margin-bottom: 6px; }
   .prog-edit-row .subj { font-weight: 600; font-size: 14px; }
   .prog-edit-row input { padding: 8px; text-align: center; }
+  .week-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .week-grid { border-collapse: collapse; width: 100%; min-width: 460px; font-size: 13px; }
+  .week-grid th, .week-grid td { padding: 8px 4px; text-align: center; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .week-grid thead th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .3px; font-weight: 700; }
+  .week-grid thead th.today-col, .week-grid td.today-col { background: var(--accent-soft); }
+  .week-grid th.task-col, .week-grid td.task-col { text-align: left; white-space: normal; min-width: 120px; font-weight: 600; }
+  .week-grid td.task-col .task-col-icon { margin-right: 6px; }
+  .wk-yes { color: var(--green); font-weight: 800; font-size: 15px; }
+  .wk-no { color: var(--red); font-weight: 800; font-size: 15px; }
+  .wk-future { color: var(--muted); }
+  .week-grid tr.total-row td { font-weight: 700; color: var(--text); border-top: 2px solid var(--border); border-bottom: none; padding-top: 10px; }
+  .week-legend { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
   .datebar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .datebar input { flex: 1; }
 
@@ -260,6 +272,7 @@
 
   <div class="tabs">
     <button class="active" data-tab="overview">Overview</button>
+    <button data-tab="week">Week</button>
     <button data-tab="today">Today</button>
     <button data-tab="schedule">Schedule</button>
     <button data-tab="progress">Ascend</button>
@@ -282,6 +295,20 @@
     <div class="card">
       <h3>Today's checklist <span class="h3-right" id="adminTodayDate">—</span></h3>
       <div id="adminTaskList"></div>
+    </div>
+  </div>
+
+  <!-- Weekly did / did-not overview per child -->
+  <div class="tab-content hidden" data-tab="week">
+    <div class="kid-switcher" id="kidSwitcherWeek"></div>
+    <div class="card">
+      <h3>This week — did / did not <span class="h3-right" id="weekRangeLabel">—</span></h3>
+      <div class="week-scroll"><table class="week-grid" id="weekGrid"></table></div>
+      <div class="week-legend">
+        <span><span class="wk-yes">✓</span> done</span>
+        <span><span class="wk-no">✗</span> not done</span>
+        <span><span class="wk-future">·</span> upcoming</span>
+      </div>
     </div>
   </div>
 
