@@ -350,6 +350,26 @@ function ringSvg(pct, centerText) {
     '<div class="ring-label"><div class="ring-pct">' + pct + '%</div><div class="ring-cap">' + escapeHtml(centerText) + '</div></div>';
 }
 
+// Minimum gap (minutes) between tasks that counts as a visible break.
+const BREAK_MIN = 10;
+// Interleave "break" rows into a time-sorted task list wherever there's empty time.
+function withBreaks(tasks) {
+  const rows = [];
+  let coveredUntil = null;
+  tasks.forEach(function (t) {
+    if (t.start_time) {
+      const start = timeToMin(t.start_time);
+      if (coveredUntil !== null && start - coveredUntil >= BREAK_MIN) {
+        rows.push({ isBreak: true, start_time: minToTime(coveredUntil), end_time: t.start_time, mins: start - coveredUntil });
+      }
+      const end = start + (t.duration_min || 0);
+      coveredUntil = coveredUntil === null ? end : Math.max(coveredUntil, end);
+    }
+    rows.push(t);
+  });
+  return rows;
+}
+
 function renderTaskList(elId, kidId, dayKey, adminMode) {
   const list = document.getElementById(elId);
   const tasks = tasksForDay(kidId, dayKey).sort(function (a, b) {
@@ -358,7 +378,19 @@ function renderTaskList(elId, kidId, dayKey, adminMode) {
   });
   if (!tasks.length) { list.innerHTML = '<div class="empty">No tasks scheduled.</div>'; return; }
   list.innerHTML = '';
-  tasks.forEach(function (t) {
+  withBreaks(tasks).forEach(function (t) {
+    if (t.isBreak) {
+      const b = document.createElement('div');
+      b.className = 'task-row break-row';
+      b.innerHTML =
+        '<div class="task-time">' + t.start_time + '</div>' +
+        '<div class="task-check break-check">☕</div>' +
+        '<div class="task-icon"></div>' +
+        '<div class="task-body"><div class="task-title">Break</div>' +
+        '<div class="task-meta">' + t.start_time + '–' + t.end_time + ' · ' + t.mins + ' min free</div></div>';
+      list.appendChild(b);
+      return;
+    }
     const done = isDone(kidId, t.id, dayKey);
     const row = document.createElement('div');
     row.className = 'task-row' + (done ? ' done' : '');
