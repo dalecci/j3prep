@@ -169,7 +169,7 @@ function askPin(target, label, cb) {
 }
 
 function showScreen(id) {
-  ['gateScreen', 'loginScreen', 'kidScreen', 'adminScreen'].forEach(function (s) {
+  ['gateScreen', 'loginScreen', 'boardScreen', 'kidScreen', 'adminScreen'].forEach(function (s) {
     document.getElementById(s).classList.toggle('hidden', s !== id);
   });
 }
@@ -297,6 +297,41 @@ function openKid(kidId) {
 }
 function kidById(id) { return state.kids.find(function (k) { return k.id === id; }); }
 
+// ---------- FAMILY BOARD (all three side by side) ----------
+function openBoard() {
+  state.isAdmin = false; state.currentKidId = null;
+  showScreen('boardScreen');
+  renderBoard();
+}
+function renderBoard() {
+  const weekend = isWeekend(state.today);
+  document.getElementById('boardDate').textContent = weekend ? 'Weekend' : prettyDate(state.today);
+  const cols = document.getElementById('boardCols');
+  cols.innerHTML = '';
+  state.kids.forEach(function (kid) {
+    const color = kid.color || '#3b82f6';
+    const dayTasks = tasksForDay(kid.id, state.today);
+    const done = dayTasks.filter(function (t) { return isDone(kid.id, t.id, state.today); }).length;
+    const score = weekScore(kid.id);
+    const col = document.createElement('div');
+    col.className = 'board-col';
+    col.innerHTML =
+      '<div class="board-col-head" style="background: linear-gradient(135deg, ' + color + ', ' + shade(color, -30) + ')">' +
+        '<div class="board-kid-name">' + escapeHtml(kid.name) + '</div>' +
+        '<div class="board-kid-sub">' + escapeHtml(gradeFor(kid.name)) + '</div>' +
+        '<div class="board-kid-score"><span>' + (weekend ? '—' : done + '/' + dayTasks.length + ' done') + '</span>' +
+          '<span>' + score + ' pts</span></div>' +
+      '</div>' +
+      '<div class="board-tasks" id="boardTasks-' + kid.id + '"></div>';
+    cols.appendChild(col);
+    if (weekend) {
+      document.getElementById('boardTasks-' + kid.id).innerHTML = '<div class="empty">No school today 🎉</div>';
+    } else {
+      renderTaskList('boardTasks-' + kid.id, kid.id, state.today, 'board');
+    }
+  });
+}
+
 function renderKid() {
   const kid = kidById(state.currentKidId);
   if (!kid) return;
@@ -327,7 +362,7 @@ function renderKid() {
     const doneCount = dayTasks.filter(function (t) { return isDone(state.currentKidId, t.id, state.today); }).length;
     const pct = dayTasks.length ? Math.round((doneCount / dayTasks.length) * 100) : 0;
     document.getElementById('todayRing').innerHTML = ringSvg(pct, doneCount + '/' + dayTasks.length);
-    renderTaskList('taskList', state.currentKidId, state.today, false);
+    renderTaskList('taskList', state.currentKidId, state.today, 'kid');
   }
   renderKidProgress();
   const bhb = behaviorWeek(state.currentKidId);
@@ -370,7 +405,7 @@ function withBreaks(tasks) {
   return rows;
 }
 
-function renderTaskList(elId, kidId, dayKey, adminMode) {
+function renderTaskList(elId, kidId, dayKey, mode) {
   const list = document.getElementById(elId);
   const tasks = tasksForDay(kidId, dayKey).sort(function (a, b) {
     const at = a.start_time || '99:99', bt = b.start_time || '99:99';
@@ -406,12 +441,12 @@ function renderTaskList(elId, kidId, dayKey, adminMode) {
       '<div class="task-body"><div class="task-title">' + escapeHtml(t.title) + tag + '</div>' +
         (meta.length ? '<div class="task-meta">' + meta.join(' · ') + '</div>' : '') + '</div>' +
       '<div class="task-pts">+' + t.points + '</div>';
-    row.onclick = function () { toggleTask(kidId, t, dayKey, adminMode); };
+    row.onclick = function () { toggleTask(kidId, t, dayKey, mode); };
     list.appendChild(row);
   });
 }
 
-async function toggleTask(kidId, task, dayKey, adminMode) {
+async function toggleTask(kidId, task, dayKey, mode) {
   const currentlyDone = isDone(kidId, task.id, dayKey);
   try {
     if (currentlyDone) {
@@ -436,7 +471,8 @@ async function toggleTask(kidId, task, dayKey, adminMode) {
     toast('Could not save: ' + (e.message || e), 'error');
     return;
   }
-  if (adminMode) { renderAdminToday(); renderAdminWeek(); renderOverview(); }
+  if (mode === 'admin') { renderAdminToday(); renderAdminWeek(); renderOverview(); }
+  else if (mode === 'board') { renderBoard(); }
   else { renderKid(); }
 }
 
@@ -612,7 +648,7 @@ function renderOverview() {
 
 function renderAdminToday() {
   document.getElementById('adminTodayDate').textContent = prettyDate(state.today);
-  if (state.adminKidId) renderTaskList('adminTaskList', state.adminKidId, state.today, true);
+  if (state.adminKidId) renderTaskList('adminTaskList', state.adminKidId, state.today, 'admin');
 }
 
 function renderRotation() {
@@ -845,6 +881,6 @@ document.querySelectorAll('#adminScreen .tabs button').forEach(function (b) {
 renderPinPad();
 askPin(GATE_PIN, 'J3 Homeschool', async function () {
   showScreen('loginScreen');
-  try { await loadAll(); renderLogin(); }
-  catch (e) { /* toast already shown */ }
+  try { await loadAll(); renderLogin(); openBoard(); }
+  catch (e) { /* toast already shown; stays on loginScreen */ }
 });
