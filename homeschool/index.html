@@ -179,6 +179,26 @@
   .datebar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .datebar input { flex: 1; }
 
+  /* Family board */
+  .board-launch { display: block; width: 100%; max-width: 520px; margin: 0 auto 18px; background: linear-gradient(135deg, var(--accent), #ea580c); color: white; padding: 16px; border-radius: 18px; font-size: 17px; font-weight: 800; box-shadow: 0 6px 20px rgba(249,115,22,0.3); transition: transform 0.1s; }
+  .board-launch:active { transform: scale(0.97); }
+  #boardScreen { max-width: 1280px; }
+  .board-cols { display: flex; gap: 12px; align-items: flex-start; overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
+  .board-col { flex: 1 1 0; min-width: 260px; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .board-col-head { padding: 14px; color: white; text-align: center; }
+  .board-kid-name { font-size: 20px; font-weight: 800; }
+  .board-kid-sub { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+  .board-kid-score { display: flex; justify-content: center; gap: 8px; margin-top: 10px; font-size: 13px; font-weight: 700; }
+  .board-kid-score span { background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 8px; }
+  .board-tasks { padding: 10px; }
+  .board-tasks .task-row { padding: 8px; gap: 8px; margin-bottom: 6px; }
+  .board-tasks .task-time { width: 40px; font-size: 11px; }
+  .board-tasks .task-icon { font-size: 18px; width: 20px; }
+  .board-tasks .task-title { font-size: 13px; }
+  .board-tasks .task-meta { font-size: 11px; }
+  .board-tasks .task-check { width: 26px; height: 26px; font-size: 15px; }
+  .board-tasks .task-pts { font-size: 11px; }
+
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--panel); color: var(--text); padding: 12px 18px; border-radius: 12px; font-size: 14px; z-index: 200; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.4); opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; max-width: 90vw; text-align: center; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
   .toast.error { border-color: var(--red); }
@@ -206,8 +226,9 @@
 <div class="screen hidden" id="loginScreen">
   <div class="login-header">
     <h1>Who's signing in?</h1>
-    <p class="sub">Tap your name to see today's schedule</p>
+    <p class="sub">Open the family board, or tap a name</p>
   </div>
+  <button class="board-launch" onclick="openBoard()">🗓️ Family Board — everyone's schedule</button>
   <div class="tile-grid" id="tileGrid"></div>
 </div>
 
@@ -397,6 +418,15 @@
     </div>
     <div class="card"><h3>Upcoming custom tasks</h3><div id="adminCustom"></div></div>
   </div>
+</div>
+
+<!-- FAMILY BOARD — all three side by side -->
+<div class="screen hidden" id="boardScreen">
+  <div class="topbar">
+    <div class="title">Family Board <span id="boardDate" style="font-weight:600;color:var(--muted);font-size:14px;margin-left:6px;">—</span></div>
+    <button class="icon-btn" onclick="logout()">Menu</button>
+  </div>
+  <div class="board-cols" id="boardCols"></div>
 </div>
 
 <div class="toast" id="toast"></div>
