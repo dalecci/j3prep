@@ -235,13 +235,18 @@ async function addReq() {
 function renderRules(pane) {
   const actOpts = P.activities.map(function (a) { return '<option value="' + a.id + '">' + escapeHtml(a.name) + '</option>'; }).join('');
   const teachOpts = P.teachers.map(function (t) { return '<option value="' + t.id + '">' + escapeHtml(t.name) + '</option>'; }).join('');
-  const allTags = {};
-  P.activities.forEach(function (a) { (a.tags || []).forEach(function (t) { allTags[t] = 1; }); });
+  const allTags = {}, allCats = {};
+  P.activities.forEach(function (a) {
+    (a.tags || []).forEach(function (t) { allTags[t] = 1; });
+    if (a.category) allCats[a.category] = 1;
+  });
   const tagOpts = Object.keys(allTags).sort().map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
+  const catOpts = Object.keys(allCats).sort().map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
 
   pane.innerHTML =
-    '<div class="card"><h3>Add a rule</h3>' +
+    '<div class="card"><h3>Build a rule</h3>' +
       '<div class="field"><span class="label">Rule type</span><select id="ruType" onchange="ruleTypeChanged()">' +
+        '<option value="custom">🛠️ Build your own — pick subject + condition</option>' +
         '<option value="blackout">🚫 Blackout — don\'t schedule X during a time window</option>' +
         '<option value="teacher_hours">🕐 Teacher hours — when a teacher is available</option>' +
         '<option value="spacing">↔️ Spacing — keep repeats apart</option>' +
@@ -254,7 +259,7 @@ function renderRules(pane) {
     '<div class="card"><h3>Active rules (' + P.rules.length + ')</h3><div id="ruleList"></div></div>' +
     '<datalist id="dlActs">' + actOpts + '</datalist>';
 
-  window._ruOpts = { actOpts: actOpts, teachOpts: teachOpts, tagOpts: tagOpts };
+  window._ruOpts = { actOpts: actOpts, teachOpts: teachOpts, tagOpts: tagOpts, catOpts: catOpts };
   ruleTypeChanged();
 
   const list = document.getElementById('ruleList');
@@ -295,8 +300,118 @@ function optsSel(html, val) {
   if (!val) return html;
   return html.replace('value="' + val + '"', 'value="' + val + '" selected');
 }
+// ---------- build-your-own rule ----------
+const VERBS = [
+  ['not_between',     'must NOT happen between…',        'time'],
+  ['only_between',    'may ONLY happen between…',        'time'],
+  ['only_on_days',    'may ONLY happen on these days',   'days'],
+  ['never_on_days',   'must NEVER happen on these days', 'days'],
+  ['max_per_day',     'at most N times per day (per kid)', 'n'],
+  ['min_gap',         'must be at least N minutes apart', 'mins'],
+  ['after',           'must come AFTER another activity', 'act'],
+  ['before',          'must come BEFORE another activity', 'act'],
+  ['not_same_day_as', 'must NOT be on the same day as…',  'act'],
+  ['only_kids',       'only these kids may do it',        'kids'],
+];
+function subjectOptions(scope) {
+  const o = window._ruOpts || {};
+  if (scope === 'tag') return o.tagOpts || '';
+  if (scope === 'teacher') return o.teachOpts || '';
+  if (scope === 'activity') return o.actOpts || '';
+  if (scope === 'category') return o.catOpts || '';
+  return '';
+}
+function customFieldsHtml(px, cfg) {
+  cfg = cfg || {};
+  const subj = cfg.subject || { scope: 'tag' };
+  const verb = cfg.verb || 'not_between';
+  const p = cfg.params || {};
+  const scopes = [['tag', 'Anything tagged…'], ['activity', 'One activity'], ['teacher', "A teacher's subjects"],
+                  ['category', 'A category'], ['any', 'Everything']];
+  return '<div class="rule-sentence">' +
+      '<div class="field"><span class="label">1 · This applies to</span>' +
+        '<select id="' + px + 'Scope" onchange="customScopeChanged(\'' + px + '\')">' +
+        scopes.map(function (s) { return '<option value="' + s[0] + '"' + (subj.scope === s[0] ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') +
+        '</select></div>' +
+      '<div class="field" id="' + px + 'SubjWrap"' + (subj.scope === 'any' ? ' style="display:none"' : '') + '>' +
+        '<span class="label">which one</span><select id="' + px + 'Subj">' + optsSel(subjectOptions(subj.scope), subj.value) + '</select></div>' +
+      '<div class="field"><span class="label">2 · Condition</span>' +
+        '<select id="' + px + 'Verb" onchange="customVerbChanged(\'' + px + '\')">' +
+        VERBS.map(function (v) { return '<option value="' + v[0] + '"' + (verb === v[0] ? ' selected' : '') + '>' + v[1] + '</option>'; }).join('') +
+        '</select></div>' +
+      '<div id="' + px + 'Params">' + customParamsHtml(px, verb, p) + '</div>' +
+    '</div>';
+}
+function customParamsHtml(px, verb, p) {
+  p = p || {};
+  const def = VERBS.find(function (v) { return v[0] === verb; });
+  const kind = def ? def[2] : 'time';
+  const o = window._ruOpts || {};
+  if (kind === 'time') {
+    return '<span class="label">3 · Details</span><div class="row" style="margin-bottom:10px;">' +
+      '<div><span class="label">From</span><input type="time" id="' + px + 'Start" value="' + (p.start || '12:00') + '"></div>' +
+      '<div><span class="label">To</span><input type="time" id="' + px + 'End" value="' + (p.end || '15:00') + '"></div></div>' +
+      '<span class="label">On which days (none = every day)</span>' + dayChecks(px + 'Day', p.days || []);
+  }
+  if (kind === 'days') return '<span class="label">3 · Which days</span>' + dayChecks(px + 'Day', p.days || []);
+  if (kind === 'n') return '<div class="field"><span class="label">3 · Maximum per day</span><input type="number" id="' + px + 'N" value="' + (p.n || 2) + '" min="1"></div>';
+  if (kind === 'mins') return '<div class="field"><span class="label">3 · Minutes apart</span><input type="number" id="' + px + 'Mins" value="' + (p.minutes || 60) + '" min="5" step="5"></div>';
+  if (kind === 'act') return '<div class="field"><span class="label">3 · Which activity</span><select id="' + px + 'Act">' + optsSel(o.actOpts || '', p.activity_id) + '</select></div>';
+  if (kind === 'kids') return '<span class="label">3 · Which kids</span>' + kidChecks(px + 'Kid', p.kid_ids || []);
+  return '';
+}
+function customScopeChanged(px) {
+  const s = document.getElementById(px + 'Scope').value;
+  const wrap = document.getElementById(px + 'SubjWrap');
+  wrap.style.display = s === 'any' ? 'none' : '';
+  wrap.innerHTML = '<span class="label">which one</span><select id="' + px + 'Subj">' + subjectOptions(s) + '</select>';
+}
+function customVerbChanged(px) {
+  document.getElementById(px + 'Params').innerHTML =
+    customParamsHtml(px, document.getElementById(px + 'Verb').value, {});
+}
+function readCustomForm(px) {
+  const g = function (s) { const e = document.getElementById(px + s); return e ? e.value : null; };
+  const scope = g('Scope');
+  const subject = { scope: scope, value: scope === 'any' ? null : g('Subj') };
+  const verb = g('Verb');
+  const def = VERBS.find(function (v) { return v[0] === verb; });
+  const kind = def ? def[2] : 'time';
+  let params = {};
+  if (kind === 'time') params = { start: g('Start'), end: g('End'), days: checkedVals(px + 'Day', true) };
+  else if (kind === 'days') params = { days: checkedVals(px + 'Day', true) };
+  else if (kind === 'n') params = { n: parseInt(g('N'), 10) || 1 };
+  else if (kind === 'mins') params = { minutes: parseInt(g('Mins'), 10) || 30 };
+  else if (kind === 'act') params = { activity_id: g('Act') };
+  else if (kind === 'kids') params = { kid_ids: checkedVals(px + 'Kid') };
+  return { type: 'custom', config: { subject: subject, verb: verb, params: params }, label: describeCustom({ subject: subject, verb: verb, params: params }) };
+}
+function describeCustom(cfg) {
+  const s = cfg.subject || {}, p = cfg.params || {};
+  const subj = s.scope === 'any' ? 'Everything'
+    : s.scope === 'tag' ? 'Anything #' + s.value
+    : s.scope === 'teacher' ? (labelFor('teacher', s.value) + "'s subjects")
+    : s.scope === 'category' ? ('Category ' + s.value)
+    : labelFor('activity', s.value);
+  const days = (p.days && p.days.length) ? p.days.map(function (d) { return DAYS6[d]; }).join('/') : '';
+  switch (cfg.verb) {
+    case 'not_between': return subj + ' — not between ' + p.start + '–' + p.end + (days ? ' on ' + days : '');
+    case 'only_between': return subj + ' — only between ' + p.start + '–' + p.end + (days ? ' on ' + days : '');
+    case 'only_on_days': return subj + ' — only on ' + (days || 'any day');
+    case 'never_on_days': return subj + ' — never on ' + (days || '—');
+    case 'max_per_day': return subj + ' — max ' + p.n + '/day per kid';
+    case 'min_gap': return subj + ' — ≥' + p.minutes + ' min apart';
+    case 'after': return subj + ' — after ' + labelFor('activity', p.activity_id);
+    case 'before': return subj + ' — before ' + labelFor('activity', p.activity_id);
+    case 'not_same_day_as': return subj + ' — not same day as ' + labelFor('activity', p.activity_id);
+    case 'only_kids': return subj + ' — only ' + (p.kid_ids || []).map(kidName).join(', ');
+    default: return subj;
+  }
+}
+
 // Shared field builder — px is an id prefix so add-form and edit-modal never collide.
 function ruleFieldsHtml(t, px, cfg) {
+  if (t === 'custom') return customFieldsHtml(px, cfg);
   cfg = cfg || {};
   const o = window._ruOpts || {};
   const days = cfg.days || [];
@@ -357,6 +472,7 @@ function scopeChanged(px) {
 }
 // Read the rule form under prefix px back into {type, config, label}
 function readRuleForm(type, px) {
+  if (type === 'custom') return readCustomForm(px);
   const g = function (sfx) { const e = document.getElementById(px + sfx); return e ? e.value : null; };
   const days = [].slice.call(document.querySelectorAll('.' + px + 'Day:checked')).map(function (c) { return parseInt(c.value, 10); });
   let config = {}, label = '';
@@ -389,6 +505,7 @@ function ruleTypeChanged() {
 
 function describeRule(r) {
   const c = r.config || {};
+  if (r.type === 'custom') return describeCustom(c);
   const days = (c.days && c.days.length) ? c.days.map(function (d) { return DAYS6[d]; }).join('/') : 'every day';
   const nameOf = function (scope, v) {
     if (scope === 'teacher') { const t = teacherById(v); return t ? t.name : v; }
@@ -540,8 +657,8 @@ function editRule(id) {
   if (!r) return;
   openModal('Edit rule',
     '<div class="field"><span class="label">Rule type</span><select id="erType" onchange="erTypeChanged()">' +
-      [['blackout', '🚫 Blackout'], ['teacher_hours', '🕐 Teacher hours'], ['spacing', '↔️ Spacing'],
-       ['order', '➡️ Order'], ['max_per_day', '🔢 Max per day']].map(function (t) {
+      [['custom', '🛠️ Build your own'], ['blackout', '🚫 Blackout'], ['teacher_hours', '🕐 Teacher hours'],
+       ['spacing', '↔️ Spacing'], ['order', '➡️ Order'], ['max_per_day', '🔢 Max per day']].map(function (t) {
         return '<option value="' + t[0] + '"' + (r.type === t[0] ? ' selected' : '') + '>' + t[1] + '</option>';
       }).join('') + '</select></div><div id="erFields">' + ruleFieldsHtml(r.type, 'er', r.config) + '</div>',
     async function () {
