@@ -330,16 +330,77 @@
   function spreadDay(c) {
     var movable = c.placed.filter(function (p) { return !p.sess.fixed; });
     if (!movable.length) return;
+    var span = c.winE - c.winS;
     var byTime = movable.slice().sort(function (a, b) { return a.st - b.st; });
-    var span = c.winE - c.winS, n = byTime.length;
-    // Ideal end for the i-th block in time order — last one lands on winE.
-    var targetEnd = {};
-    byTime.forEach(function (p, i) { targetEnd[i] = c.winS + Math.round(span * (i + 1) / n); });
+
+    // Rank each kid's OWN blocks in time order, so every kid's day spans the
+    // window. Ranking globally under-spreads: with 3 kids working in parallel
+    // the ranks trebled and only the very last block reached the end of the day.
+    // Anchors don't move but they DO consume time, so they're included when
+    // working out how much slack there is to share around.
+    var allByTime = c.placed.slice().sort(function (a, b) { return a.st - b.st; });
+    var perKid = {};
+    allByTime.forEach(function (p) {
+      p.sess.kids.forEach(function (k) { (perKid[k] = perKid[k] || []).push(p); });
+    });
+    // Anchors carve the day into free stretches. Movable work is laid out evenly
+    // across the CONCATENATED free time, so blocks land on both sides of lunch
+    // instead of all bunching before it.
+    function freeSlices(anchors) {
+      var out = [], cur = c.winS;
+      anchors.forEach(function (a) {
+        if (a[0] > cur) out.push([cur, a[0]]);
+        cur = Math.max(cur, a[1]);
+      });
+      if (cur < c.winE) out.push([cur, c.winE]);
+      return out;
+    }
+    // Map an offset along the concatenated free time back to a real clock time,
+    // skipping to the next slice if `dur` wouldn't fit in this one.
+    function realStart(slices, offset, dur) {
+      for (var i = 0; i < slices.length; i++) {
+        var len = slices[i][1] - slices[i][0];
+        if (offset <= len) {
+          var st = slices[i][0] + offset;
+          if (st + dur <= slices[i][1]) return st;
+          return (i + 1 < slices.length) ? slices[i + 1][0] : st;
+        }
+        offset -= len;
+      }
+      return slices.length ? slices[slices.length - 1][0] : c.winS;
+    }
+
+    var targetEnd = new Map();
+    Object.keys(perKid).forEach(function (k) {
+      var list = perKid[k];
+      var anchors = list.filter(function (p) { return p.sess.fixed; })
+        .map(function (p) { return [p.st, p.en]; })
+        .sort(function (a, b) { return a[0] - b[0]; });
+      var slices = freeSlices(anchors);
+      var free = slices.reduce(function (a, s) { return a + (s[1] - s[0]); }, 0);
+      var move = list.filter(function (p) { return !p.sess.fixed; });
+      var n = move.length;
+      if (!n) return;
+      var total = move.reduce(function (a, p) { return a + (p.en - p.st); }, 0);
+      var gap = n > 1 ? Math.max(0, free - total) / (n - 1) : 0;
+      var cum = 0;
+      move.forEach(function (p, i) {
+        var dur = p.en - p.st;
+        var tEnd = realStart(slices, cum + Math.round(gap * i), dur) + dur;
+        cum += dur;
+        var cur = targetEnd.get(p);
+        // a shared block is paced by its most-constrained kid
+        targetEnd.set(p, cur == null ? tEnd : Math.min(cur, tEnd));
+      });
+    });
+
     // Latest first, so each slides into the tail that the ones after it vacated.
     for (var i = byTime.length - 1; i >= 0; i--) {
       var p = byTime[i];
       var dur = p.en - p.st;
-      var want = Math.min(c.winE, Math.max(targetEnd[i], p.en)) - dur;   // never move earlier
+      var tgt = targetEnd.get(p);
+      if (tgt == null) continue;
+      var want = Math.min(c.winE, Math.max(tgt, p.en)) - dur;             // never move earlier
       if (want <= p.st) continue;
       detach(c, p);
       var best = null;
