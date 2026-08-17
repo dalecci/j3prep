@@ -246,14 +246,18 @@
       var key = cf.scope + ':' + cf.value;
       c.counts[key] = (c.counts[key] || 0) + 1;
     });
+    var rows = [];
     s.kids.forEach(function (k) {
-      out.push({
+      var row = {
         task_date: c.dateKey, kid_id: k, activity_id: s.act.id,
         teacher_id: s.teacher || null, title: s.act.name, icon: s.act.icon || '📌',
         points: s.act.points == null ? 5 : s.act.points,
         start_time: m2t(st), duration_min: en - st, resource: s.resource || null
-      });
+      };
+      rows.push(row);
+      out.push(row);
     });
+    c.placed.push({ sess: s, st: st, en: en, rows: rows });
   }
 
   function tryPlace(s, c, out) {
@@ -284,6 +288,66 @@
       if (fits(s, st, st + dur, c)) { commit(s, st, st + dur, c, out); return true; }
     }
     return false;
+  }
+
+  // ---- spread pass ----------------------------------------------------
+  // Placement above packs everything as early as possible, which guarantees the
+  // most blocks fit but leaves the end of the day empty. This second pass slides
+  // blocks LATER into that free time so the day actually spans the window the
+  // user set. It never adds or drops a block — it only moves ones that can move.
+  function rmInterval(list, st, en) {
+    if (!list) return;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i][0] === st && list[i][1] === en) { list.splice(i, 1); return; }
+    }
+  }
+  function detach(c, p) {
+    var s = p.sess;
+    s.kids.forEach(function (k) {
+      rmInterval(c.busyKid[k], p.st, p.en);
+      rmInterval(c.actKid[s.act.id + '|' + k], p.st, p.en);
+      var kb = c.kidBlocks[k] || [];
+      for (var i = 0; i < kb.length; i++) {
+        if (kb[i].s === p.st && kb[i].e === p.en && kb[i].act === s.act) { kb.splice(i, 1); break; }
+      }
+    });
+    if (s.resource) rmInterval(c.busyRes[s.resource], p.st, p.en);
+    if (s.teacher) rmInterval(c.busyTeach[s.teacher], p.st, p.en);
+  }
+  function attach(c, p, st, en) {
+    var s = p.sess;
+    s.kids.forEach(function (k) {
+      push(c.busyKid, k, st, en);
+      push(c.actKid, s.act.id + '|' + k, st, en);
+      (c.kidBlocks[k] = c.kidBlocks[k] || []).push({ s: st, e: en, act: s.act });
+    });
+    if (s.resource) push(c.busyRes, s.resource, st, en);
+    if (s.teacher) push(c.busyTeach, s.teacher, st, en);
+    c.placedAct[s.act.id] = { start: st, end: en };
+    p.st = st; p.en = en;
+    p.rows.forEach(function (r) { r.start_time = m2t(st); });
+  }
+  function spreadDay(c) {
+    var movable = c.placed.filter(function (p) { return !p.sess.fixed; });
+    if (!movable.length) return;
+    var byTime = movable.slice().sort(function (a, b) { return a.st - b.st; });
+    var span = c.winE - c.winS, n = byTime.length;
+    // Ideal end for the i-th block in time order — last one lands on winE.
+    var targetEnd = {};
+    byTime.forEach(function (p, i) { targetEnd[i] = c.winS + Math.round(span * (i + 1) / n); });
+    // Latest first, so each slides into the tail that the ones after it vacated.
+    for (var i = byTime.length - 1; i >= 0; i--) {
+      var p = byTime[i];
+      var dur = p.en - p.st;
+      var want = Math.min(c.winE, Math.max(targetEnd[i], p.en)) - dur;   // never move earlier
+      if (want <= p.st) continue;
+      detach(c, p);
+      var best = null;
+      for (var t = want; t >= p.st; t -= STEP) {                          // closest to target that fits
+        if (fits(p.sess, t, t + dur, c)) { best = t; break; }
+      }
+      attach(c, p, best == null ? p.st : best, (best == null ? p.st : best) + dur);
+    }
   }
 
   function cmpSession(a, b) {
@@ -357,7 +421,7 @@
           winS: t2m(cfg2.start || '09:15'),
           winE: t2m(cfg2.end || '16:40'),
           busyKid: {}, busyRes: {}, busyTeach: {}, actKid: {}, kidBlocks: {},
-          placedAct: {}, counts: {}, rules: rules
+          placedAct: {}, counts: {}, rules: rules, placed: []
         };
         byDay[dd].slice().sort(cmpSession).forEach(function (s) {
           if (!tryPlace(s, c, blocks)) {
@@ -368,6 +432,7 @@
             });
           }
         });
+        if (dw.spread !== false) spreadDay(c);      // default: use the whole day
       });
     }
 
