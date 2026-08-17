@@ -198,6 +198,9 @@
 
     if (s.fixed) {                                   // anchored block (meals) — exact time or bust
       var fs = t2m(s.fixed), fe = fs + dur;
+      // must still sit inside the day's available window (e.g. a short Saturday)
+      if (fs < c.winS || fe > c.winE) return false;
+      if (fs < minStart) return false;
       if (fits(s, fs, fe, c)) { commit(s, fs, fe, c, out); return true; }
       return false;
     }
