@@ -179,6 +179,20 @@
   .datebar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .datebar input { flex: 1; }
 
+  /* Planner / Brain */
+  .tabs.subtabs { background: var(--panel-2); margin-bottom: 14px; }
+  .tabs.subtabs button.active { background: var(--accent); }
+  .day-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .day-toggle { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; cursor: pointer; }
+  .day-toggle input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .day-row input[type=time] { width: auto; padding: 8px; font-size: 14px; }
+  .day-dash { color: var(--muted); }
+  .chk-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chk { display: flex; align-items: center; gap: 6px; background: var(--panel-2); padding: 8px 12px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .chk input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .pv-day { margin-bottom: 16px; }
+  .pv-date { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--accent); }
+
   /* Family board */
   .board-launch { display: block; width: 100%; max-width: 520px; margin: 0 auto 18px; background: linear-gradient(135deg, var(--accent), #ea580c); color: white; padding: 16px; border-radius: 18px; font-size: 17px; font-weight: 800; box-shadow: 0 6px 20px rgba(249,115,22,0.3); transition: transform 0.1s; }
   .board-launch:active { transform: scale(0.97); }
@@ -296,6 +310,7 @@
 
   <div class="tabs">
     <button class="active" data-tab="overview">Overview</button>
+    <button data-tab="brain">🧠 Brain</button>
     <button data-tab="week">Week</button>
     <button data-tab="today">Today</button>
     <button data-tab="schedule">Schedule</button>
@@ -320,6 +335,11 @@
       <h3>Today's checklist <span class="h3-right" id="adminTodayDate">—</span></h3>
       <div id="adminTaskList"></div>
     </div>
+  </div>
+
+  <!-- Brain — week planner -->
+  <div class="tab-content hidden" data-tab="brain">
+    <div id="brainBody"></div>
   </div>
 
   <!-- Weekly did / did-not overview per child -->
@@ -431,5 +451,7 @@
 
 <div class="toast" id="toast"></div>
 <script src="app.js"></script>
+<script src="planner-engine.js"></script>
+<script src="planner.js"></script>
 </body>
 </html>
