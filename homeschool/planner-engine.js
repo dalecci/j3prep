@@ -86,6 +86,74 @@
 
   function tagsOf(act) { return act.tags || []; }
 
+  // Does a custom rule's SUBJECT match this activity?
+  //   {scope:'any'|'tag'|'teacher'|'activity'|'category', value:x}
+  function subjMatch(subj, act) {
+    if (!subj || subj.scope === 'any' || !subj.scope) return true;
+    if (subj.scope === 'tag') return tagsOf(act).indexOf(subj.value) >= 0;
+    if (subj.scope === 'teacher') return act.teacher_id === subj.value;
+    if (subj.scope === 'activity') return act.id === subj.value;
+    if (subj.scope === 'category') return act.category === subj.value;
+    return false;
+  }
+  function daysApply(days, day) { return !days || !days.length || days.indexOf(day) >= 0; }
+
+  // Every block this kid already has today, with its activity — lets custom
+  // rules reason about tags/teachers/categories, not just one activity id.
+  function kidBlocksMatching(c, kid, subj) {
+    var list = c.kidBlocks[kid] || [];
+    return list.filter(function (b) { return subjMatch(subj, b.act); });
+  }
+
+  // Returns false if any custom rule forbids [st,en) for this session.
+  function customOk(s, st, en, c) {
+    for (var i = 0; i < c.rules.length; i++) {
+      var r = c.rules[i];
+      if (r.type !== 'custom') continue;
+      var cf = r.config || {};
+      if (!subjMatch(cf.subject, s.act)) continue;
+      var p = cf.params || {};
+      var v = cf.verb;
+
+      if (v === 'not_between') {
+        if (daysApply(p.days, c.day) && overlaps(st, en, t2m(p.start || '00:00'), t2m(p.end || '23:59'))) return false;
+      } else if (v === 'only_between') {
+        if (daysApply(p.days, c.day) && !(st >= t2m(p.start || '00:00') && en <= t2m(p.end || '23:59'))) return false;
+      } else if (v === 'only_on_days') {
+        if (p.days && p.days.length && p.days.indexOf(c.day) < 0) return false;
+      } else if (v === 'never_on_days') {
+        if (p.days && p.days.indexOf(c.day) >= 0) return false;
+      } else if (v === 'max_per_day') {
+        for (var k = 0; k < s.kids.length; k++) {
+          if (kidBlocksMatching(c, s.kids[k], cf.subject).length >= (p.n || 1)) return false;
+        }
+      } else if (v === 'min_gap') {
+        var gap = p.minutes || 0;
+        for (var k2 = 0; k2 < s.kids.length; k2++) {
+          var prior = kidBlocksMatching(c, s.kids[k2], cf.subject);
+          for (var q = 0; q < prior.length; q++) {
+            if (overlaps(st - gap, en + gap, prior[q].s, prior[q].e)) return false;
+          }
+        }
+      } else if (v === 'after') {
+        var prev = c.placedAct[p.activity_id];
+        if (prev && st < prev.end) return false;
+      } else if (v === 'before') {
+        var other = c.placedAct[p.activity_id];
+        if (other && en > other.start) return false;
+      } else if (v === 'not_same_day_as') {
+        for (var k3 = 0; k3 < s.kids.length; k3++) {
+          var same = (c.kidBlocks[s.kids[k3]] || []).filter(function (b) { return b.act.id === p.activity_id; });
+          if (same.length) return false;
+        }
+      } else if (v === 'only_kids') {
+        var allow = p.kid_ids || [];
+        for (var k4 = 0; k4 < s.kids.length; k4++) if (allow.indexOf(s.kids[k4]) < 0) return false;
+      }
+    }
+    return true;
+  }
+
   // ---- constraint checks for a candidate window [st, en) ----
   function fits(s, st, en, c) {
     // kids free?
@@ -154,6 +222,9 @@
       var key = c4.scope + ':' + c4.value;
       if ((c.counts[key] || 0) >= (c4.max || 99)) return false;
     }
+
+    // user-built rules
+    if (!customOk(s, st, en, c)) return false;
     return true;
   }
 
@@ -161,6 +232,7 @@
     s.kids.forEach(function (k) {
       push(c.busyKid, k, st, en);
       push(c.actKid, s.act.id + '|' + k, st, en);
+      (c.kidBlocks[k] = c.kidBlocks[k] || []).push({ s: st, e: en, act: s.act });
     });
     if (s.resource) push(c.busyRes, s.resource, st, en);
     if (s.teacher) push(c.busyTeach, s.teacher, st, en);
@@ -189,11 +261,15 @@
     // "after X" order rules raise the earliest legal start
     var minStart = c.winS;
     c.rules.forEach(function (r) {
-      if (r.type !== 'order') return;
       var cf = r.config || {};
-      if (cf.after_activity_id !== s.act.id) return;
-      var prev = c.placedAct[cf.before_activity_id];
-      if (prev) minStart = Math.max(minStart, prev.end);
+      if (r.type === 'order') {
+        if (cf.after_activity_id !== s.act.id) return;
+        var prev = c.placedAct[cf.before_activity_id];
+        if (prev) minStart = Math.max(minStart, prev.end);
+      } else if (r.type === 'custom' && cf.verb === 'after' && subjMatch(cf.subject, s.act)) {
+        var prev2 = c.placedAct[(cf.params || {}).activity_id];
+        if (prev2) minStart = Math.max(minStart, prev2.end);
+      }
     });
 
     if (s.fixed) {                                   // anchored block (meals) — exact time or bust
@@ -280,7 +356,7 @@
           dateKey: fmtDate(addDays(weekStart, dd)),
           winS: t2m(cfg2.start || '09:15'),
           winE: t2m(cfg2.end || '16:40'),
-          busyKid: {}, busyRes: {}, busyTeach: {}, actKid: {},
+          busyKid: {}, busyRes: {}, busyTeach: {}, actKid: {}, kidBlocks: {},
           placedAct: {}, counts: {}, rules: rules
         };
         byDay[dd].slice().sort(cmpSession).forEach(function (s) {
