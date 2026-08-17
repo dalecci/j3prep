@@ -199,9 +199,13 @@ function renderReqs(pane) {
     it.innerHTML = '<div class="grow">' + (a.icon || '') + ' <b>' + escapeHtml(a.name) + '</b>' +
       '<div class="meta">' + rq.qty + '×/wk · ' + (rq.duration_min || a.duration_min || 30) + 'm · ' +
       escapeHtml(who) + ' · ' + dys + rep + ' · P' + rq.priority + '</div></div>';
+    const acts = document.createElement('div'); acts.className = 'row-actions';
+    const ed = document.createElement('button'); ed.className = 'btn-edit'; ed.textContent = 'Edit';
+    ed.onclick = function () { editReq(rq.id); };
     const del = document.createElement('button'); del.className = 'btn-danger'; del.textContent = '✕';
     del.onclick = function () { delRow('homeschool_plan_req', rq.id, function () { P.reqs = P.reqs.filter(function (x) { return x.id !== rq.id; }); }); };
-    it.appendChild(del); list.appendChild(it);
+    acts.appendChild(ed); acts.appendChild(del);
+    it.appendChild(acts); list.appendChild(it);
   });
 }
 
@@ -270,54 +274,117 @@ function renderRules(pane) {
         r.active = !r.active; renderBrain();
       } catch (e) { toast('Failed: ' + e.message, 'error'); }
     };
+    const ed = document.createElement('button'); ed.className = 'btn-edit'; ed.textContent = 'Edit';
+    ed.onclick = function () { editRule(r.id); };
     const del = document.createElement('button'); del.className = 'btn-danger'; del.textContent = '✕';
     del.onclick = function () { delRow('homeschool_rules', r.id, function () { P.rules = P.rules.filter(function (x) { return x.id !== r.id; }); }); };
-    it.appendChild(tog); it.appendChild(del); list.appendChild(it);
+    const acts = document.createElement('div'); acts.className = 'row-actions';
+    acts.appendChild(tog); acts.appendChild(ed); acts.appendChild(del);
+    it.appendChild(acts); list.appendChild(it);
   });
 }
 
-function dayChecks(cls) {
+function dayChecks(cls, sel) {
+  sel = sel || [];
   return '<div class="chk-row">' + DAYS6.map(function (nm, i) {
-    return '<label class="chk"><input type="checkbox" class="' + cls + '" value="' + i + '"><span>' + nm + '</span></label>';
+    return '<label class="chk"><input type="checkbox" class="' + cls + '" value="' + i + '"' +
+      (sel.indexOf(i) >= 0 ? ' checked' : '') + '><span>' + nm + '</span></label>';
   }).join('') + '</div>';
 }
-function ruleTypeChanged() {
-  const t = document.getElementById('ruType').value;
-  const o = window._ruOpts || {};
-  const f = document.getElementById('ruFields');
-  const timeRow = '<div class="row" style="margin-bottom:10px;">' +
-    '<div><span class="label">From</span><input type="time" id="ruStart" value="12:00"></div>' +
-    '<div><span class="label">To</span><input type="time" id="ruEnd" value="15:00"></div></div>';
-  if (t === 'blackout') {
-    f.innerHTML = '<div class="field"><span class="label">Block what?</span><select id="ruScope" onchange="blackoutScope()">' +
-        '<option value="tag">A tag (e.g. outdoor)</option><option value="teacher">A teacher</option><option value="activity">One activity</option>' +
-      '</select></div><div class="field" id="ruValWrap"><span class="label">Tag</span><select id="ruValue">' + (o.tagOpts || '') + '</select></div>' +
-      timeRow + '<span class="label">On which days (none = every day)</span>' + dayChecks('ruDay');
-  } else if (t === 'teacher_hours') {
-    f.innerHTML = '<div class="field"><span class="label">Teacher</span><select id="ruValue">' + (o.teachOpts || '') + '</select></div>' +
-      '<div class="row" style="margin-bottom:10px;"><div><span class="label">Available from</span><input type="time" id="ruStart" value="09:00"></div>' +
-      '<div><span class="label">Until</span><input type="time" id="ruEnd" value="12:00"></div></div>' +
-      '<span class="label">On which days (none = every day)</span>' + dayChecks('ruDay');
-  } else if (t === 'spacing') {
-    f.innerHTML = '<div class="field"><span class="label">Activity</span><select id="ruValue">' + (o.actOpts || '') + '</select></div>' +
-      '<div class="field"><span class="label">Minimum gap between repeats (minutes)</span><input type="number" id="ruGap" value="60"></div>';
-  } else if (t === 'order') {
-    f.innerHTML = '<div class="field"><span class="label">This activity…</span><select id="ruBefore">' + (o.actOpts || '') + '</select></div>' +
-      '<div class="field"><span class="label">…must come before</span><select id="ruAfter">' + (o.actOpts || '') + '</select></div>';
-  } else {
-    f.innerHTML = '<div class="field"><span class="label">Limit what?</span><select id="ruScope" onchange="blackoutScope()">' +
-        '<option value="tag">A tag</option><option value="activity">One activity</option></select></div>' +
-      '<div class="field" id="ruValWrap"><span class="label">Tag</span><select id="ruValue">' + (o.tagOpts || '') + '</select></div>' +
-      '<div class="field"><span class="label">Max per day</span><input type="number" id="ruMax" value="2"></div>';
-  }
+function optsSel(html, val) {
+  if (!val) return html;
+  return html.replace('value="' + val + '"', 'value="' + val + '" selected');
 }
-function blackoutScope() {
-  const s = document.getElementById('ruScope').value;
+// Shared field builder — px is an id prefix so add-form and edit-modal never collide.
+function ruleFieldsHtml(t, px, cfg) {
+  cfg = cfg || {};
   const o = window._ruOpts || {};
-  const wrap = document.getElementById('ruValWrap');
-  if (s === 'tag') wrap.innerHTML = '<span class="label">Tag</span><select id="ruValue">' + (o.tagOpts || '') + '</select>';
-  else if (s === 'teacher') wrap.innerHTML = '<span class="label">Teacher</span><select id="ruValue">' + (o.teachOpts || '') + '</select>';
-  else wrap.innerHTML = '<span class="label">Activity</span><select id="ruValue">' + (o.actOpts || '') + '</select>';
+  const days = cfg.days || [];
+  const valOpts = function (scope) {
+    return scope === 'teacher' ? optsSel(o.teachOpts || '', cfg.value)
+         : scope === 'activity' ? optsSel(o.actOpts || '', cfg.value)
+         : optsSel(o.tagOpts || '', cfg.value);
+  };
+  if (t === 'blackout') {
+    const sc = cfg.scope || 'tag';
+    return '<div class="field"><span class="label">Block what?</span>' +
+      '<select id="' + px + 'Scope" onchange="scopeChanged(\'' + px + '\')">' +
+        ['tag', 'teacher', 'activity'].map(function (s) {
+          const lbl = s === 'tag' ? 'A tag (e.g. outdoor)' : s === 'teacher' ? 'A teacher' : 'One activity';
+          return '<option value="' + s + '"' + (sc === s ? ' selected' : '') + '>' + lbl + '</option>';
+        }).join('') + '</select></div>' +
+      '<div class="field" id="' + px + 'ValWrap"><span class="label">Which one</span>' +
+      '<select id="' + px + 'Value">' + valOpts(sc) + '</select></div>' +
+      '<div class="row" style="margin-bottom:10px;">' +
+        '<div><span class="label">From</span><input type="time" id="' + px + 'Start" value="' + (cfg.start || '12:00') + '"></div>' +
+        '<div><span class="label">To</span><input type="time" id="' + px + 'End" value="' + (cfg.end || '15:00') + '"></div></div>' +
+      '<span class="label">On which days (none = every day)</span>' + dayChecks(px + 'Day', days);
+  }
+  if (t === 'teacher_hours') {
+    return '<div class="field"><span class="label">Teacher</span><select id="' + px + 'Value">' +
+      optsSel(o.teachOpts || '', cfg.teacher_id) + '</select></div>' +
+      '<div class="row" style="margin-bottom:10px;">' +
+        '<div><span class="label">Available from</span><input type="time" id="' + px + 'Start" value="' + (cfg.start || '09:00') + '"></div>' +
+        '<div><span class="label">Until</span><input type="time" id="' + px + 'End" value="' + (cfg.end || '12:00') + '"></div></div>' +
+      '<span class="label">On which days (none = every day)</span>' + dayChecks(px + 'Day', days);
+  }
+  if (t === 'spacing') {
+    return '<div class="field"><span class="label">Activity</span><select id="' + px + 'Value">' +
+      optsSel(o.actOpts || '', cfg.activity_id) + '</select></div>' +
+      '<div class="field"><span class="label">Minimum gap between repeats (minutes)</span>' +
+      '<input type="number" id="' + px + 'Gap" value="' + (cfg.min_gap_min || 60) + '"></div>';
+  }
+  if (t === 'order') {
+    return '<div class="field"><span class="label">This activity…</span><select id="' + px + 'Before">' +
+      optsSel(o.actOpts || '', cfg.before_activity_id) + '</select></div>' +
+      '<div class="field"><span class="label">…must come before</span><select id="' + px + 'After">' +
+      optsSel(o.actOpts || '', cfg.after_activity_id) + '</select></div>';
+  }
+  const sc2 = cfg.scope || 'tag';
+  return '<div class="field"><span class="label">Limit what?</span>' +
+    '<select id="' + px + 'Scope" onchange="scopeChanged(\'' + px + '\')">' +
+      '<option value="tag"' + (sc2 === 'tag' ? ' selected' : '') + '>A tag</option>' +
+      '<option value="activity"' + (sc2 === 'activity' ? ' selected' : '') + '>One activity</option></select></div>' +
+    '<div class="field" id="' + px + 'ValWrap"><span class="label">Which one</span>' +
+    '<select id="' + px + 'Value">' + valOpts(sc2) + '</select></div>' +
+    '<div class="field"><span class="label">Max per day</span><input type="number" id="' + px + 'Max" value="' + (cfg.max || 2) + '"></div>';
+}
+function scopeChanged(px) {
+  const s = document.getElementById(px + 'Scope').value;
+  const o = window._ruOpts || {};
+  document.getElementById(px + 'ValWrap').innerHTML = '<span class="label">Which one</span><select id="' + px + 'Value">' +
+    (s === 'tag' ? (o.tagOpts || '') : s === 'teacher' ? (o.teachOpts || '') : (o.actOpts || '')) + '</select>';
+}
+// Read the rule form under prefix px back into {type, config, label}
+function readRuleForm(type, px) {
+  const g = function (sfx) { const e = document.getElementById(px + sfx); return e ? e.value : null; };
+  const days = [].slice.call(document.querySelectorAll('.' + px + 'Day:checked')).map(function (c) { return parseInt(c.value, 10); });
+  let config = {}, label = '';
+  if (type === 'blackout') {
+    config = { scope: g('Scope'), value: g('Value'), start: g('Start'), end: g('End'), days: days };
+    label = 'No ' + labelFor(config.scope, config.value) + ' ' + config.start + '–' + config.end;
+  } else if (type === 'teacher_hours') {
+    config = { teacher_id: g('Value'), start: g('Start'), end: g('End'), days: days };
+    label = labelFor('teacher', config.teacher_id) + ' hours';
+  } else if (type === 'spacing') {
+    config = { activity_id: g('Value'), min_gap_min: parseInt(g('Gap'), 10) || 30 };
+    label = labelFor('activity', config.activity_id) + ' spacing';
+  } else if (type === 'order') {
+    config = { before_activity_id: g('Before'), after_activity_id: g('After') };
+    label = labelFor('activity', config.before_activity_id) + ' → ' + labelFor('activity', config.after_activity_id);
+  } else {
+    config = { scope: g('Scope'), value: g('Value'), max: parseInt(g('Max'), 10) || 1 };
+    label = 'Max ' + config.max + ' ' + labelFor(config.scope, config.value) + '/day';
+  }
+  return { type: type, config: config, label: label };
+}
+function labelFor(scope, v) {
+  if (scope === 'teacher') { const t = teacherById(v); return t ? t.name : '?'; }
+  if (scope === 'activity') { const a = actById(v); return a ? a.name : '?'; }
+  return v;
+}
+function ruleTypeChanged() {
+  document.getElementById('ruFields').innerHTML = ruleFieldsHtml(document.getElementById('ruType').value, 'ru', {});
 }
 
 function describeRule(r) {
@@ -337,34 +404,159 @@ function describeRule(r) {
 }
 
 async function addRule() {
-  const type = document.getElementById('ruType').value;
-  const days = [].slice.call(document.querySelectorAll('.ruDay:checked')).map(function (c) { return parseInt(c.value, 10); });
-  let config = {}, label = '';
-  const val = function () { const e = document.getElementById('ruValue'); return e ? e.value : null; };
-  if (type === 'blackout') {
-    config = { scope: document.getElementById('ruScope').value, value: val(), start: document.getElementById('ruStart').value, end: document.getElementById('ruEnd').value, days: days };
-    label = 'No ' + config.value + ' ' + config.start + '–' + config.end;
-  } else if (type === 'teacher_hours') {
-    config = { teacher_id: val(), start: document.getElementById('ruStart').value, end: document.getElementById('ruEnd').value, days: days };
-    const t = teacherById(config.teacher_id);
-    label = (t ? t.name : 'Teacher') + ' hours';
-  } else if (type === 'spacing') {
-    config = { activity_id: val(), min_gap_min: parseInt(document.getElementById('ruGap').value, 10) || 30 };
-    const a = actById(config.activity_id); label = (a ? a.name : '?') + ' spacing';
-  } else if (type === 'order') {
-    config = { before_activity_id: document.getElementById('ruBefore').value, after_activity_id: document.getElementById('ruAfter').value };
-    const b = actById(config.before_activity_id), a2 = actById(config.after_activity_id);
-    label = (b ? b.name : '?') + ' → ' + (a2 ? a2.name : '?');
-  } else {
-    config = { scope: document.getElementById('ruScope').value, value: val(), max: parseInt(document.getElementById('ruMax').value, 10) || 1 };
-    label = 'Max ' + config.max + ' ' + config.value + '/day';
-  }
+  const r = readRuleForm(document.getElementById('ruType').value, 'ru');
   try {
-    const { data, error } = await supa.from('homeschool_rules').insert({ label: label, type: type, config: config, active: true }).select();
+    const { data, error } = await supa.from('homeschool_rules')
+      .insert({ label: r.label, type: r.type, config: r.config, active: true }).select();
     if (error) throw error;
     P.rules.push(data[0]);
     toast('Rule added', 'success'); renderBrain();
   } catch (e) { console.error(e); toast('Save failed: ' + (e.message || e), 'error'); }
+}
+
+// ---------- modal ----------
+function openModal(title, bodyHtml, onSave) {
+  closeModal();
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg'; bg.id = 'pModal';
+  bg.innerHTML = '<div class="modal"><h2>' + escapeHtml(title) + '</h2>' + bodyHtml +
+    '<div class="modal-actions"><button class="btn-secondary" onclick="closeModal()">Cancel</button>' +
+    '<button class="btn-primary" id="pmSave">Save</button></div></div>';
+  bg.onclick = function (e) { if (e.target === bg) closeModal(); };
+  document.body.appendChild(bg);
+  document.getElementById('pmSave').onclick = onSave;
+}
+function closeModal() { const m = document.getElementById('pModal'); if (m) m.remove(); }
+
+function kidChecks(cls, sel) {
+  sel = sel || [];
+  return '<div class="chk-row">' + state.kids.map(function (k) {
+    return '<label class="chk"><input type="checkbox" class="' + cls + '" value="' + k.id + '"' +
+      (sel.indexOf(k.id) >= 0 ? ' checked' : '') + '><span>' + escapeHtml(k.name) + '</span></label>';
+  }).join('') + '</div>';
+}
+function checkedVals(cls, asInt) {
+  return [].slice.call(document.querySelectorAll('.' + cls + ':checked'))
+    .map(function (c) { return asInt ? parseInt(c.value, 10) : c.value; });
+}
+
+// ---------- edit: plan requirement ----------
+function editReq(id) {
+  const rq = P.reqs.find(function (x) { return x.id === id; });
+  if (!rq) return;
+  const a = actById(rq.activity_id) || { name: '?', duration_min: 30 };
+  openModal('Edit — ' + a.name,
+    '<div class="row" style="margin-bottom:10px;">' +
+      '<div><span class="label">Times per kid, per week</span><input type="number" id="eqQty" value="' + rq.qty + '" min="1"></div>' +
+      '<div><span class="label">Repeat</span><select id="eqEvery">' +
+        [1, 2, 3, 4].map(function (n) {
+          return '<option value="' + n + '"' + ((rq.every_n_weeks || 1) === n ? ' selected' : '') + '>' +
+            (n === 1 ? 'Every week' : 'Every ' + n + ' weeks') + '</option>';
+        }).join('') + '</select></div>' +
+      '<div><span class="label">Priority</span><input type="number" id="eqPrio" value="' + rq.priority + '" min="1" max="10"></div>' +
+    '</div>' +
+    '<div class="field"><span class="label">Minutes (blank = default ' + (a.duration_min || 30) + ')</span>' +
+      '<input type="number" id="eqDur" value="' + (rq.duration_min == null ? '' : rq.duration_min) + '" placeholder="default"></div>' +
+    '<span class="label">Only these kids (none = all)</span>' + kidChecks('eqKid', rq.kid_ids) +
+    '<span class="label" style="margin-top:10px;">Only these days (none = any)</span>' + dayChecks('eqDay', rq.days),
+    async function () {
+      const dur = parseInt(document.getElementById('eqDur').value, 10);
+      const patch = {
+        qty: parseInt(document.getElementById('eqQty').value, 10) || 1,
+        every_n_weeks: parseInt(document.getElementById('eqEvery').value, 10) || 1,
+        priority: parseInt(document.getElementById('eqPrio').value, 10) || 5,
+        duration_min: isNaN(dur) ? null : dur,
+        kid_ids: checkedVals('eqKid'), days: checkedVals('eqDay', true),
+      };
+      try {
+        const { error } = await supa.from('homeschool_plan_req').update(patch).eq('id', id);
+        if (error) throw error;
+        Object.assign(rq, patch);
+        closeModal(); toast('Updated', 'success'); renderBrain();
+      } catch (e) { console.error(e); toast('Save failed: ' + (e.message || e), 'error'); }
+    });
+}
+
+// ---------- edit: library activity ----------
+function editActivity(id) {
+  const a = actById(id);
+  if (!a) return;
+  const teachOpts = '<option value="">Self-directed (no teacher)</option>' +
+    P.teachers.map(function (t) {
+      return '<option value="' + t.id + '"' + (a.teacher_id === t.id ? ' selected' : '') + '>' + escapeHtml(t.icon + ' ' + t.name) + '</option>';
+    }).join('');
+  const sel = function (v, cur) { return v === cur ? ' selected' : ''; };
+  openModal('Edit — ' + a.name,
+    '<div class="row" style="margin-bottom:10px;">' +
+      '<div style="flex:2;"><span class="label">Name</span><input id="eaName" value="' + escapeHtml(a.name) + '"></div>' +
+      '<div style="flex:1;"><span class="label">Icon</span><input id="eaIcon" value="' + escapeHtml(a.icon || '') + '"></div>' +
+    '</div>' +
+    '<div class="field"><span class="label">Teacher</span><select id="eaTeacher">' + teachOpts + '</select></div>' +
+    '<div class="row" style="margin-bottom:10px;">' +
+      '<div><span class="label">Minutes</span><input type="number" id="eaDur" value="' + (a.duration_min || 30) + '"></div>' +
+      '<div><span class="label">Points</span><input type="number" id="eaPts" value="' + (a.points == null ? 5 : a.points) + '"></div>' +
+      '<div><span class="label">Fixed time</span><input id="eaFixed" value="' + escapeHtml(a.fixed_time || '') + '" placeholder="opt. 11:45"></div>' +
+    '</div>' +
+    '<div class="row" style="margin-bottom:10px;">' +
+      '<div><span class="label">Where</span><select id="eaLoc">' +
+        '<option value="either"' + sel('either', a.location) + '>Either</option>' +
+        '<option value="indoor"' + sel('indoor', a.location) + '>Indoor</option>' +
+        '<option value="outdoor"' + sel('outdoor', a.location) + '>Outdoor</option></select></div>' +
+      '<div><span class="label">Needs (exclusive)</span><input id="eaRes" value="' + escapeHtml(a.resource || '') + '" placeholder="computer / basket…"></div>' +
+    '</div>' +
+    '<div class="field"><span class="label">Who does it</span><select id="eaPart">' +
+      '<option value="together"' + sel('together', a.participation) + '>Together — all assigned kids at once</option>' +
+      '<option value="independent"' + sel('independent', a.participation) + '>Independent — each on their own</option>' +
+      '<option value="solo"' + sel('solo', a.participation) + '>One at a time — never two kids at once</option></select></div>' +
+    '<div class="field"><span class="label">Tags (comma separated)</span>' +
+      '<input id="eaTags" value="' + escapeHtml((a.tags || []).join(', ')) + '" placeholder="outdoor, physical"></div>' +
+    '<span class="label">Only these kids (none = all)</span>' + kidChecks('eaKid', a.kid_ids),
+    async function () {
+      const patch = {
+        name: document.getElementById('eaName').value.trim() || a.name,
+        icon: document.getElementById('eaIcon').value.trim() || '📌',
+        teacher_id: document.getElementById('eaTeacher').value || null,
+        duration_min: parseInt(document.getElementById('eaDur').value, 10) || 30,
+        points: parseInt(document.getElementById('eaPts').value, 10) || 0,
+        location: document.getElementById('eaLoc').value,
+        resource: document.getElementById('eaRes').value.trim() || null,
+        participation: document.getElementById('eaPart').value,
+        fixed_time: document.getElementById('eaFixed').value.trim() || null,
+        tags: document.getElementById('eaTags').value.split(',').map(function (s) { return s.trim(); }).filter(Boolean),
+        kid_ids: checkedVals('eaKid'),
+      };
+      try {
+        const { error } = await supa.from('homeschool_activities').update(patch).eq('id', id);
+        if (error) throw error;
+        Object.assign(a, patch);
+        closeModal(); toast('Updated', 'success'); renderBrain();
+      } catch (e) { console.error(e); toast('Save failed: ' + (e.message || e), 'error'); }
+    });
+}
+
+// ---------- edit: rule ----------
+function editRule(id) {
+  const r = P.rules.find(function (x) { return x.id === id; });
+  if (!r) return;
+  openModal('Edit rule',
+    '<div class="field"><span class="label">Rule type</span><select id="erType" onchange="erTypeChanged()">' +
+      [['blackout', '🚫 Blackout'], ['teacher_hours', '🕐 Teacher hours'], ['spacing', '↔️ Spacing'],
+       ['order', '➡️ Order'], ['max_per_day', '🔢 Max per day']].map(function (t) {
+        return '<option value="' + t[0] + '"' + (r.type === t[0] ? ' selected' : '') + '>' + t[1] + '</option>';
+      }).join('') + '</select></div><div id="erFields">' + ruleFieldsHtml(r.type, 'er', r.config) + '</div>',
+    async function () {
+      const built = readRuleForm(document.getElementById('erType').value, 'er');
+      try {
+        const { error } = await supa.from('homeschool_rules')
+          .update({ type: built.type, config: built.config, label: built.label }).eq('id', id);
+        if (error) throw error;
+        Object.assign(r, built);
+        closeModal(); toast('Rule updated', 'success'); renderBrain();
+      } catch (e) { console.error(e); toast('Save failed: ' + (e.message || e), 'error'); }
+    });
+}
+function erTypeChanged() {
+  document.getElementById('erFields').innerHTML = ruleFieldsHtml(document.getElementById('erType').value, 'er', {});
 }
 
 // ---------- 4. library ----------
@@ -417,9 +609,13 @@ function renderLibrary(pane) {
     it.className = 'list-item';
     it.innerHTML = '<div class="grow">' + (a.icon || '') + ' <b>' + escapeHtml(a.name) + '</b>' +
       '<div class="meta">' + escapeHtml(bits.join(' · ')) + '</div></div>';
+    const acts = document.createElement('div'); acts.className = 'row-actions';
+    const ed = document.createElement('button'); ed.className = 'btn-edit'; ed.textContent = 'Edit';
+    ed.onclick = function () { editActivity(a.id); };
     const del = document.createElement('button'); del.className = 'btn-danger'; del.textContent = '✕';
     del.onclick = function () { delRow('homeschool_activities', a.id, function () { P.activities = P.activities.filter(function (x) { return x.id !== a.id; }); }); };
-    it.appendChild(del); list.appendChild(it);
+    acts.appendChild(ed); acts.appendChild(del);
+    it.appendChild(acts); list.appendChild(it);
   });
 }
 
