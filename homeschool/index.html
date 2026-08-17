@@ -179,7 +179,17 @@
   .datebar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .datebar input { flex: 1; }
 
+  /* Modal editor */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 300; }
+  .modal { background: var(--panel); border-radius: 18px; padding: 22px; width: 100%; max-width: 480px; border: 1px solid var(--border); max-height: 88vh; overflow-y: auto; }
+  .modal h2 { margin-bottom: 16px; font-size: 18px; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+  .modal-actions button { flex: 1; }
+
   /* Planner / Brain */
+  .list-item .row-actions { display: flex; gap: 6px; flex: 0 0 auto; }
+  .btn-edit { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-weight: 600; font-size: 13px; }
+  .btn-edit:hover { background: var(--accent); color: #fff; }
   .tabs.subtabs { background: var(--panel-2); margin-bottom: 14px; }
   .tabs.subtabs button.active { background: var(--accent); }
   .day-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center; margin-bottom: 6px; }
