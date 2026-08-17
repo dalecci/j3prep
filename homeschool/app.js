@@ -13,7 +13,8 @@ const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const state = {
   kids: [],
   points: [],          // behavior_points
-  tasks: [],           // homeschool_tasks (template)
+  generated: [],       // homeschool_generated (planner output — wins when present)
+  tasks: [],           // homeschool_tasks (template fallback)
   log: [],             // homeschool_task_log
   custom: [],          // homeschool_custom_tasks
   progress: [],        // homeschool_progress
@@ -198,6 +199,7 @@ async function loadAll() {
     state.custom = r[4].data || [];
     state.progress = r[5].data || [];
     state.rewards = r[6].data || [];
+    if (typeof loadGenerated === 'function') await loadGenerated();
   } catch (e) {
     console.error('loadAll failed', e);
     toast('Sync error: ' + (e.message || e), 'error');
@@ -206,8 +208,32 @@ async function loadAll() {
 }
 
 // ---------- scoring ----------
-// Tasks a kid should see on a given date = active template tasks + custom tasks for that date/kid.
+// Blocks produced by the Planner ("brain") for this kid+date, if a plan covers it.
+function plannedForDay(kidId, dayKey) {
+  if (!state.generated || !state.generated.length) return null;
+  const rows = state.generated.filter(function (g) { return g.kid_id === kidId && g.task_date === dayKey; });
+  if (!rows.length) return null;
+  return rows.map(function (g) {
+    return { id: g.id, title: g.title, icon: g.icon, start_time: g.start_time,
+      duration_min: g.duration_min, target: null, points: g.points,
+      category: null, source: 'planned', resource: g.resource,
+      teacher_id: g.teacher_id };
+  });
+}
+
+// Tasks a kid should see on a given date.
+// A published plan wins; otherwise fall back to the fixed template + custom tasks.
 function tasksForDay(kidId, dayKey) {
+  const planned = plannedForDay(kidId, dayKey);
+  if (planned) {
+    const extra = state.custom.filter(function (c) {
+      return c.task_date === dayKey && (c.kid_id === null || c.kid_id === kidId);
+    }).map(function (c) {
+      return { id: c.id, title: c.title, icon: c.icon || '📝', start_time: null,
+        duration_min: null, target: null, points: c.points, category: c.category, source: 'custom' };
+    });
+    return planned.concat(extra);
+  }
   const kid = kidById(kidId) || { id: kidId, name: '' };
   const template = [];
   state.tasks.forEach(function (t) {
@@ -433,6 +459,10 @@ function renderTaskList(elId, kidId, dayKey, mode) {
     if (t.target) meta.push(escapeHtml(t.target));
     else if (t.duration_min) meta.push(t.duration_min + ' min');
     if (t.resource) meta.push('your turn · ' + t.resource);
+    if (t.teacher_id && typeof teacherById === 'function') {
+      const tc = teacherById(t.teacher_id);
+      if (tc) meta.push('with ' + tc.icon + ' ' + tc.name);
+    }
     const tag = t.source === 'custom' ? '<span class="custom-tag">EXTRA</span>' : '';
     row.innerHTML =
       '<div class="task-time">' + (t.start_time || '') + '</div>' +
@@ -551,6 +581,7 @@ function switchTab(tab) {
   state.currentTab = tab;
   document.querySelectorAll('#adminScreen .tabs button').forEach(function (b) { b.classList.toggle('active', b.dataset.tab === tab); });
   document.querySelectorAll('#adminScreen .tab-content').forEach(function (c) { c.classList.toggle('hidden', c.dataset.tab !== tab); });
+  if (tab === 'brain' && typeof openBrain === 'function') openBrain();
 }
 function renderKidSwitchers() {
   ['kidSwitcherToday', 'kidSwitcherProg', 'kidSwitcherWeek'].forEach(function (id) {
@@ -579,7 +610,18 @@ function renderAdminWeek() {
   const days = weekdaysOf();
   document.getElementById('weekRangeLabel').textContent = days[0].dow + ' ' + days[0].short + ' – ' + days[4].dow + ' ' + days[4].short;
 
-  const template = state.tasks.slice().sort(function (a, b) {
+  // Rows = every distinct task this kid actually has across the week
+  // (planner output when a plan is published, otherwise the fixed template).
+  const seen = {}, template = [];
+  days.forEach(function (d) {
+    tasksForDay(state.adminKidId, d.key).forEach(function (t) {
+      if (t.source === 'custom') return;
+      const key = t.title;
+      if (!seen[key]) { seen[key] = { id: t.id, title: t.title, icon: t.icon, start_time: t.start_time, ids: {} }; template.push(seen[key]); }
+      seen[key].ids[d.key] = t.id;      // planned ids differ per day
+    });
+  });
+  template.sort(function (a, b) {
     const at = a.start_time || '99:99', bt = b.start_time || '99:99'; return at < bt ? -1 : at > bt ? 1 : 0;
   });
 
@@ -597,9 +639,11 @@ function renderAdminWeek() {
     body += '<tr><td class="task-col"><span class="task-col-icon">' + (t.icon || '📌') + '</span>' + escapeHtml(t.title) + '</td>';
     days.forEach(function (d) {
       const todayCls = d.key === state.today ? ' today-col' : '';
+      const tid = (t.ids && t.ids[d.key]) || t.id;
       let cell;
-      if (na) cell = '<span class="wk-future">n/a</span>';
-      else if (isDone(state.adminKidId, t.id, d.key)) cell = '<span class="wk-yes">✓</span>';
+      if (!t.ids[d.key]) cell = '<span class="wk-future">n/a</span>';
+      else if (na) cell = '<span class="wk-future">n/a</span>';
+      else if (isDone(state.adminKidId, tid, d.key)) cell = '<span class="wk-yes">✓</span>';
       else if (d.key <= state.today) cell = '<span class="wk-no">✗</span>';
       else cell = '<span class="wk-future">·</span>';
       body += '<td class="' + todayCls.trim() + '">' + cell + '</td>';
