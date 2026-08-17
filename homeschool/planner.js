@@ -553,6 +553,9 @@ function renderPreview(pane) {
 function doGenerate() {
   if (!window.HSEngine) { toast('Engine not loaded', 'error'); return; }
   if (!P.reqs.length) { toast('Add something to schedule first', 'error'); return; }
+  if (!state.kids.length) { toast('No kids loaded — reload the page', 'error'); return; }
+  const anyDay = Object.keys(P.plan.day_windows || {}).some(function (k) { return P.plan.day_windows[k].on !== false; });
+  if (!anyDay) { toast('No days are turned on in Week setup', 'error'); return; }
   const ctx = {
     kids: state.kids.map(function (k) { return { id: k.id, name: k.name }; }),
     activities: P.activities,
