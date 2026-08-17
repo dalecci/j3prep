@@ -125,13 +125,18 @@ function renderPlanSetup(pane) {
           '<input type="time" class="dayEnd" data-day="' + i + '" value="' + (c.end || '16:40') + '">' +
         '</div>';
       }).join('') + '</div>' +
+      '<label class="chk" style="margin-top:12px;width:100%;">' +
+        '<input type="checkbox" id="plSpread"' + (dw.spread !== false ? ' checked' : '') + '>' +
+        '<span>Spread activities across the whole day<br>' +
+        '<span style="font-weight:400;color:var(--muted);font-size:12px;">' +
+        'Off = pack everything into the morning and finish early.</span></span></label>' +
       '<button class="btn-primary" style="width:100%;margin-top:12px;" onclick="savePlan()">Save plan window</button>' +
     '</div>' +
     (P.plan ? '' : '<div class="card"><p class="empty">No plan yet — saving creates one.</p></div>');
 }
 
 async function savePlan() {
-  const dw = {};
+  const dw = { spread: document.getElementById('plSpread').checked };
   DAYS6.forEach(function (_, i) {
     dw[String(i)] = {
       on: document.querySelector('.dayOn[data-day="' + i + '"]').checked,
