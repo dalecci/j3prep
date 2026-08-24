@@ -519,7 +519,8 @@ function viewLog(){
   let body = '';
   for (const e of exs){
     body += '<tr data-ex="' + esc(e.id) + '"><td class="exname"><div class="exhead"><div>' +
-            '<b>' + esc(e.name) + '</b><small>' + esc(e.unit || '') + (e.dir === 'down' ? ' · lower is better' : '') + '</small>' +
+            '<b>' + esc(e.name) + '</b><small' + (e.dir === 'down' ? ' title="lower is better"' : '') + '>' +
+              esc(e.unit || '') + (e.dir === 'down' ? ' &#8595;' : '') + '</small>' +
             '</div><button class="rowdel" data-delex="' + esc(e.id) + '" title="Remove ' + esc(e.name) + '" aria-label="Remove ' + esc(e.name) + '">&times;</button></div></td>';
     for (const a of aths){
       const v = entryValue(App.date, e.id, a.id);
