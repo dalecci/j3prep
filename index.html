@@ -3,32 +3,32 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#050C18" />
+<meta name="theme-color" content="#03040E" />
 <meta name="robots" content="noindex, nofollow" />
 <title>J3 Prep · School, reimagined</title>
 <meta name="description" content="Hello, and welcome to school, reimagined. J3 Prep · Cape Coral, Florida." />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230B1B2D'/><path d='M8 50 L27 22 L34 31 L41 19 L56 50Z' fill='%23E0BD68'/></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2307091C'/><circle cx='32' cy='32' r='9' fill='%23FFF3D6'/><ellipse cx='32' cy='32' rx='24' ry='9' fill='none' stroke='%23E0BD68' stroke-width='3'/><circle cx='52' cy='37' r='4.5' fill='%237FE7F2'/></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --night: #050C18;
+    --space: #03040E;
     --navy: #0B1B2D;
-    --navy-2: #122843;
     --cream: #F7F2E6;
     --gold: #C8A95C;
     --gold-2: #E0BD68;
     --gold-3: #F6DC94;
-    --text-soft: rgba(247, 242, 230, 0.80);
+    --cyan: #7FE7F2;
+    --violet: #B48CFF;
+    --text-soft: rgba(247, 242, 230, 0.82);
     --text-mute: rgba(247, 242, 230, 0.55);
-    --line: rgba(224, 189, 104, 0.24);
+    --line: rgba(224, 189, 104, 0.26);
     --serif: 'Fraunces', Georgia, serif;
     --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --ease: cubic-bezier(.2, .8, .2, 1);
-    --range-h: 42vh;
     --ox: 50vw;
-    --oy: 62vh;
+    --oy: 67vh;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -36,79 +36,46 @@
   body {
     font-family: var(--sans);
     color: var(--cream);
-    background: var(--night);
+    background: var(--space);
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
 
-  /* ---------- Scene: sky, sunrise, mountains, floating ideas ---------- */
-  .sky {
-    position: fixed; inset: 0;
-    background: linear-gradient(180deg,
-      #03080F 0%, #061226 26%, #0D1D40 44%, #1E2A57 54%,
-      #45386A 61%, #8C556A 68%, #D08A6C 76%, #EDBB7E 86%, #F3CF92 100%);
-    transform-origin: var(--ox) var(--oy);
+  /* ---------- Deep space ---------- */
+  .space {
+    position: fixed; inset: 0; overflow: hidden;
+    background: radial-gradient(120% 90% at 50% 68%, #0B1033 0%, #060822 38%, #03040E 75%);
   }
-  #stars { position: absolute; inset: 0; width: 100%; height: 100%; animation: fade 2.4s ease both; }
-
-  .scene { position: fixed; inset: 0; pointer-events: none; transform-origin: var(--ox) var(--oy); }
-  .sun {
-    position: absolute; left: var(--ox); top: var(--oy);
-    width: 170vmax; height: 170vmax;
-    margin: -85vmax 0 0 -85vmax;
-    background: radial-gradient(circle,
-      rgba(255, 244, 214, .80) 0%, rgba(255, 222, 156, .50) 3%,
-      rgba(242, 176, 110, .26) 10%, rgba(196, 112, 110, .12) 20%,
-      rgba(120, 80, 130, .05) 30%, transparent 42%);
-    animation: breathe 9s ease-in-out infinite, fade 2.6s ease both;
+  .nebula {
+    position: absolute; inset: -25%;
+    background:
+      radial-gradient(34% 26% at 24% 30%, rgba(124, 58, 214, .38), transparent 70%),
+      radial-gradient(30% 24% at 80% 24%, rgba(18, 160, 182, .30), transparent 70%),
+      radial-gradient(40% 28% at 72% 76%, rgba(204, 52, 148, .24), transparent 70%),
+      radial-gradient(34% 24% at 20% 78%, rgba(44, 86, 214, .30), transparent 70%),
+      radial-gradient(26% 18% at 52% 48%, rgba(255, 196, 120, .10), transparent 70%);
+    animation: nebula 70s ease-in-out infinite alternate, fade 3s ease both;
   }
-  .rays {
-    position: absolute; inset: 0; border-radius: 50%;
-    background: repeating-conic-gradient(from 0deg, rgba(255, 228, 170, .09) 0deg 2.2deg, transparent 2.2deg 14deg);
-    -webkit-mask-image: radial-gradient(circle, #000 0%, rgba(0,0,0,.6) 12%, transparent 34%);
-            mask-image: radial-gradient(circle, #000 0%, rgba(0,0,0,.6) 12%, transparent 34%);
-    animation: spin 160s linear infinite;
+  .milky {
+    position: absolute; left: -30%; right: -30%; top: 22%; height: 46%;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(190, 180, 255, .13), rgba(150, 140, 255, .04) 45%, transparent 72%);
+    transform: rotate(-16deg);
   }
-  .range {
-    position: absolute; left: 0; bottom: 0;
-    width: 100%; height: var(--range-h);
-    display: block; overflow: visible;
-    animation: rise-range 1.8s var(--ease) .1s both;
-  }
-  #glyphs { position: absolute; inset: 0; width: 100%; height: 100%; }
-
-  .ridge-far { fill: url(#gFar); }
-  .ridge-mid { fill: url(#gMid); }
-  .ridge-near { fill: #060E1B; }
-  .rim { fill: none; stroke-linejoin: round; }
-  .trail-glow {
-    fill: none; stroke: url(#gTrail); stroke-width: 7; stroke-linecap: round;
-    opacity: .55;
-    stroke-dasharray: 1; stroke-dashoffset: 1;
-    animation: draw 2.4s var(--ease) 1s forwards;
-  }
-  .trail-steps {
-    fill: none; stroke: var(--gold-3); stroke-width: 2.4; stroke-linecap: round;
-    stroke-dasharray: .1 9; opacity: 0;
-    animation: fade-to 1.2s ease 2.2s forwards;
-  }
-  .pennant { transform-origin: 720px 39px; animation: wave 2.6s ease-in-out infinite; }
-  .sparkle { transform-origin: 744px 30px; animation: twinkle 3.2s ease-in-out infinite; }
-  .mist { animation: drift 38s ease-in-out infinite alternate; }
-  .mist.two { animation-duration: 52s; animation-direction: alternate-reverse; }
+  #cosmos { position: fixed; inset: 0; width: 100%; height: 100%; display: block; animation: fade 1.6s ease .1s both; }
 
   .flash {
     position: fixed; inset: 0; z-index: 30; pointer-events: none; opacity: 0;
-    background: radial-gradient(circle at var(--ox) var(--oy), #FFF9E8 0%, #FBF0E4 22%, #F4F1FB 60%);
+    background: radial-gradient(circle at var(--ox) var(--oy), #FFFFFF 0%, #FBF7FF 25%, #F4F1FB 60%);
   }
 
   /* ---------- Page ---------- */
   .page {
-    position: relative; z-index: 2;
+    position: relative; z-index: 2; pointer-events: none;
     min-height: 100vh; min-height: 100svh;
     display: flex; flex-direction: column;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
+  .page a, .page button { pointer-events: auto; }
   .top {
     display: flex; align-items: center; justify-content: space-between;
     padding: 20px 28px;
@@ -120,52 +87,53 @@
     display: grid; place-items: center;
     font: 600 1rem/1 var(--serif); color: var(--gold-3);
     border: 1px solid var(--line);
-    background: linear-gradient(160deg, rgba(224,189,104,.16), rgba(11,27,45,.4));
+    background: linear-gradient(160deg, rgba(224,189,104,.16), rgba(8,10,30,.5));
   }
   .brand-name { font: 600 1.05rem/1.1 var(--serif); letter-spacing: .01em; }
   .where { font-size: .7rem; letter-spacing: .28em; text-transform: uppercase; color: var(--text-mute); }
 
   .hero {
     display: flex; flex-direction: column; align-items: center; text-align: center;
-    padding: clamp(8px, 5vh, 64px) 16px 0;
+    padding: clamp(4px, 4vh, 56px) 16px 0;
   }
   .kicker {
-    margin: 0 0 clamp(8px, 2vh, 18px);
-    font-size: .72rem; font-weight: 500; letter-spacing: .32em; text-transform: uppercase;
-    color: var(--gold-2);
+    margin: 0 0 clamp(6px, 1.6vh, 16px);
+    font-size: .72rem; font-weight: 600; letter-spacing: .34em; text-transform: uppercase;
+    color: var(--cyan);
+    text-shadow: 0 0 18px rgba(127, 231, 242, .45);
     animation: rise .9s var(--ease) .25s both;
   }
   .hello {
     margin: 0; padding: 0 .06em .06em;
     font-family: var(--serif); font-weight: 600;
-    font-size: clamp(4.75rem, min(18vw, 21vh), 11rem);
+    font-size: clamp(4.75rem, min(18vw, 20vh), 10.5rem);
     line-height: .95; letter-spacing: -.045em;
     background: linear-gradient(100deg,
-      var(--cream) 0%, var(--cream) 34%, var(--gold-3) 44%, var(--gold-2) 50%,
-      var(--gold-3) 56%, var(--cream) 66%, var(--cream) 100%);
+      #FFFFFF 0%, var(--cream) 30%, var(--gold-3) 42%, var(--cyan) 50%,
+      var(--violet) 56%, var(--cream) 68%, #FFFFFF 100%);
     background-size: 300% 100%; background-position: 100% 0;
     -webkit-background-clip: text; background-clip: text; color: transparent;
-    filter: drop-shadow(0 6px 30px rgba(3, 8, 18, .55));
-    animation: hello-in 1.4s var(--ease) .35s both, shimmer 8s ease-in-out 2s infinite;
+    filter: drop-shadow(0 0 28px rgba(140, 120, 255, .35));
+    animation: hello-in 1.4s var(--ease) .35s both, shimmer 9s ease-in-out 2s infinite;
   }
   .welcome {
-    margin: clamp(4px, 1.2vh, 12px) 0 0;
-    font: 400 clamp(1.7rem, min(5.4vw, 6vh), 3.2rem)/1.15 var(--serif);
+    margin: clamp(2px, 1vh, 10px) 0 0;
+    font: 400 clamp(1.65rem, min(5.2vw, 5.6vh), 3.1rem)/1.15 var(--serif);
     letter-spacing: -.02em;
-    text-shadow: 0 2px 24px rgba(3, 8, 18, .7);
+    text-shadow: 0 2px 24px rgba(3, 4, 14, .85);
     animation: rise 1s var(--ease) .95s both;
   }
   .welcome em { position: relative; display: inline-block; font-style: italic; font-weight: 500; color: var(--gold-3); white-space: nowrap; }
   .swoosh { position: absolute; left: -2%; bottom: -.28em; width: 104%; height: .45em; overflow: visible; }
   .swoosh path {
-    fill: none; stroke: var(--gold-2); stroke-width: 3; stroke-linecap: round;
+    fill: none; stroke: url(#swooshGrad); stroke-width: 3; stroke-linecap: round;
     stroke-dasharray: 1; stroke-dashoffset: 1;
     animation: draw 1.1s var(--ease) 1.7s forwards;
   }
   .rotator {
-    position: relative; height: 1.6em; margin: clamp(14px, 2.6vh, 24px) 0 clamp(18px, 3.6vh, 34px);
+    position: relative; height: 1.6em; margin: clamp(12px, 2.4vh, 22px) 0 clamp(16px, 3.2vh, 30px);
     font-size: clamp(.98rem, 2.4vw, 1.12rem); color: var(--text-soft);
-    text-shadow: 0 1px 14px rgba(3, 8, 18, .8);
+    text-shadow: 0 1px 14px rgba(3, 4, 14, .95);
     animation: rise 1s var(--ease) 1.35s both;
   }
   .rotator span { display: inline-block; transition: opacity .45s ease, transform .45s var(--ease); }
@@ -179,7 +147,7 @@
     font: 600 1.08rem/1 var(--sans); letter-spacing: .01em;
     color: var(--navy); text-decoration: none; overflow: hidden;
     background: linear-gradient(135deg, var(--gold-3) 0%, var(--gold-2) 45%, #B8934A 100%);
-    box-shadow: 0 14px 44px rgba(224, 189, 104, .38), 0 2px 0 rgba(255,255,255,.55) inset, 0 -2px 0 rgba(120, 84, 30, .25) inset;
+    box-shadow: 0 14px 44px rgba(224, 189, 104, .38), 0 0 60px rgba(127, 231, 242, .12), 0 2px 0 rgba(255,255,255,.55) inset, 0 -2px 0 rgba(120, 84, 30, .25) inset;
     transition: transform .25s var(--ease), box-shadow .25s ease;
   }
   .cta::before {
@@ -190,44 +158,54 @@
   }
   .cta-wrap::after {
     content: ''; position: absolute; inset: 0; border-radius: 999px; pointer-events: none;
-    border: 1.5px solid rgba(246, 220, 148, .7);
+    border: 1.5px solid rgba(127, 231, 242, .65);
     animation: halo 2.8s ease-out 2.6s infinite;
   }
   .cta svg { width: 20px; height: 20px; transition: transform .25s var(--ease); }
-  .cta:hover { transform: translateY(-2px); box-shadow: 0 20px 54px rgba(224, 189, 104, .5), 0 2px 0 rgba(255,255,255,.55) inset, 0 -2px 0 rgba(120, 84, 30, .25) inset; }
-  .cta:hover svg { transform: translateX(4px); }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 20px 54px rgba(224, 189, 104, .5), 0 0 70px rgba(127, 231, 242, .2), 0 2px 0 rgba(255,255,255,.55) inset, 0 -2px 0 rgba(120, 84, 30, .25) inset; }
+  .cta:hover svg { transform: translate(3px, -3px); }
   .cta:active { transform: translateY(0) scale(.98); }
   .cta:focus-visible { outline: 3px solid var(--cream); outline-offset: 4px; }
 
-  .spacer { flex: 1; min-height: 32px; }
-  .chips {
-    list-style: none; margin: 0 auto; padding: 0 16px;
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
-    animation: rise 1s var(--ease) 2s both;
+  .spacer { flex: 1; min-height: 24px; }
+  .hint {
+    margin: 0 0 6px; text-align: center;
+    font-size: .74rem; letter-spacing: .22em; text-transform: uppercase; color: var(--text-mute);
+    animation: fade 1.2s ease 2.6s both;
   }
-  .chips li {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 9px 15px; border-radius: 999px;
-    font-size: .82rem; color: var(--text-soft);
-    background: rgba(6, 14, 27, .55);
-    border: 1px solid var(--line);
-    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-  }
-  .chips svg { width: 15px; height: 15px; color: var(--gold-2); flex: none; }
+  .hint b { color: var(--cyan); font-weight: 600; }
+  .touch-only { display: none; }
+  @media (hover: none) { .touch-only { display: inline; } .hover-only { display: none; } }
   .foot {
     display: flex; justify-content: space-between; align-items: center; gap: 10px;
-    padding: 18px 28px 22px;
+    padding: 14px 28px 22px;
     font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: var(--text-mute);
     animation: fade 1.2s ease 2.2s both;
   }
   .foot a { color: var(--gold-2); text-decoration: none; }
   .foot a:hover { color: var(--gold-3); }
 
-  /* ---------- School code ---------- */
+  /* ---------- Planet tooltip ---------- */
+  .tip {
+    position: fixed; left: 0; top: 0; z-index: 3; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 9px 14px 10px; border-radius: 14px; white-space: nowrap;
+    background: rgba(8, 10, 30, .72);
+    border: 1px solid rgba(var(--c, 224,189,104), .55);
+    box-shadow: 0 0 26px rgba(var(--c, 224,189,104), .28), 0 10px 30px rgba(0,0,0,.4);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    opacity: 0; transform: translate(-50%, -100%) translateY(6px) scale(.96);
+    transition: opacity .2s ease, transform .25s var(--ease);
+  }
+  .tip.show { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+  .tip b { font: 600 1.02rem/1.1 var(--serif); color: rgb(var(--c, 224,189,104)); letter-spacing: .01em; }
+  .tip span { font-size: .76rem; color: var(--text-soft); }
+
+  /* ---------- Launch code ---------- */
   .gate {
     position: fixed; inset: 0; z-index: 20;
     display: grid; place-items: center; padding: 16px;
-    background: rgba(3, 8, 18, .55);
+    background: rgba(2, 3, 12, .55);
     -webkit-backdrop-filter: blur(10px) saturate(120%); backdrop-filter: blur(10px) saturate(120%);
     opacity: 0; visibility: hidden;
     transition: opacity .35s ease, visibility 0s linear .35s;
@@ -236,20 +214,21 @@
   .card {
     position: relative; width: min(400px, 100%);
     padding: 34px 24px 22px; border-radius: 26px; text-align: center;
-    background: linear-gradient(180deg, rgba(26, 46, 82, .94), rgba(8, 18, 34, .97));
-    border: 1px solid rgba(224, 189, 104, .3);
-    box-shadow: 0 30px 80px rgba(0, 0, 0, .55), 0 0 70px rgba(224, 189, 104, .12);
+    background: linear-gradient(180deg, rgba(24, 22, 68, .95), rgba(6, 8, 26, .97));
+    border: 1px solid rgba(127, 231, 242, .28);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .6), 0 0 80px rgba(124, 58, 214, .22);
     transform: translateY(18px) scale(.97);
     transition: transform .45s var(--ease);
   }
   .gate.open .card { transform: none; }
   .badge {
     width: 58px; height: 58px; margin: 0 auto 14px; border-radius: 18px;
-    display: grid; place-items: center; color: var(--gold-3);
-    background: radial-gradient(circle at 50% 25%, rgba(246, 220, 148, .28), rgba(200, 169, 92, .06));
-    border: 1px solid rgba(224, 189, 104, .35);
+    display: grid; place-items: center; color: var(--cyan);
+    background: radial-gradient(circle at 50% 25%, rgba(127, 231, 242, .25), rgba(124, 58, 214, .10));
+    border: 1px solid rgba(127, 231, 242, .35);
   }
   .badge svg { width: 30px; height: 30px; }
+  .ok .badge svg { animation: liftoff .9s ease-in .2s both; }
   .card h3 { margin: 0 0 6px; font: 600 1.6rem/1.15 var(--serif); letter-spacing: -.01em; }
   .card .sub { margin: 0 0 22px; font-size: .92rem; color: var(--text-soft); }
   .pins { position: relative; display: flex; justify-content: center; gap: 12px; }
@@ -261,9 +240,9 @@
     border: 1.5px solid rgba(247, 242, 230, .16);
     transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
   }
-  .pin.filled { border-color: rgba(224, 189, 104, .7); background: rgba(224, 189, 104, .08); }
-  .pin.active { border-color: var(--gold-2); box-shadow: 0 0 0 4px rgba(224, 189, 104, .16); }
-  .pin.active::after { content: ''; width: 2px; height: 30px; border-radius: 2px; background: var(--gold-3); animation: blink 1s steps(1) infinite; }
+  .pin.filled { border-color: rgba(127, 231, 242, .7); background: rgba(127, 231, 242, .07); }
+  .pin.active { border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(127, 231, 242, .15); }
+  .pin.active::after { content: ''; width: 2px; height: 30px; border-radius: 2px; background: var(--cyan); animation: blink 1s steps(1) infinite; }
   .ok .pin { color: var(--navy); border-color: transparent; background: linear-gradient(135deg, var(--gold-3), var(--gold)); animation: pop .5s var(--ease) both; animation-delay: calc(var(--i) * 70ms); }
   .wrong .pins { animation: shake .45s ease; }
   .wrong .pin { border-color: rgba(255, 140, 120, .75); background: rgba(255, 120, 100, .08); }
@@ -272,9 +251,9 @@
     margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer;
     font-size: 16px; color: transparent; caret-color: transparent; background: transparent;
   }
-  .msg { min-height: 1.45em; margin: 16px 0 4px; font-size: .9rem; color: var(--text-mute); }
+  .msg { min-height: 1.45em; margin: 16px 0 4px; font-size: .92rem; color: var(--text-mute); }
   .wrong .msg { color: #FFB8A8; }
-  .ok .msg { color: var(--gold-3); }
+  .ok .msg { color: var(--gold-3); font-weight: 600; letter-spacing: .02em; }
   .later {
     margin-top: 4px; padding: 10px 14px; border: 0; border-radius: 10px;
     font: 500 .85rem var(--sans); color: var(--text-mute); background: none; cursor: pointer;
@@ -288,133 +267,47 @@
   .x:hover { color: var(--cream); background: rgba(255, 255, 255, .1); }
   .x svg { width: 16px; height: 16px; }
 
-  /* ---------- Launch: climb to the summit ---------- */
-  body.launch .page { opacity: 0; transform: translateY(-40px); transition: opacity .6s ease, transform .9s ease; }
-  body.launch .scene { transform: scale(6); transition: transform 1.9s cubic-bezier(.7, 0, .2, 1); }
-  body.launch .sky { transform: scale(1.3); transition: transform 1.9s ease-in; }
-  body.launch .flash { opacity: 1; transition: opacity .75s ease-in 1.15s; }
+  /* ---------- Warp ---------- */
+  body.warp { overflow: hidden; }
+  body.warp .page { opacity: 0; transform: scale(1.12); transition: opacity .55s ease, transform 1.2s ease-in; }
+  body.warp .tip { opacity: 0; }
+  body.warp .nebula { transform: scale(1.6); opacity: .4; transition: transform 2s ease-in, opacity 2s ease-in; }
+  body.warp .flash { opacity: 1; transition: opacity .55s ease-in 1.6s; }
 
   /* ---------- Motion ---------- */
   @keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
   @keyframes hello-in {
-    from { opacity: 0; transform: translateY(40px) scale(.96); letter-spacing: .04em; filter: blur(14px) drop-shadow(0 6px 30px rgba(3,8,18,.55)); }
-    to   { opacity: 1; transform: none; letter-spacing: -.045em; filter: blur(0) drop-shadow(0 6px 30px rgba(3,8,18,.55)); }
+    from { opacity: 0; transform: translateY(40px) scale(.96); letter-spacing: .04em; filter: blur(14px) drop-shadow(0 0 28px rgba(140,120,255,.35)); }
+    to   { opacity: 1; transform: none; letter-spacing: -.045em; filter: blur(0) drop-shadow(0 0 28px rgba(140,120,255,.35)); }
   }
-  @keyframes rise-range { from { opacity: 0; transform: translateY(14%); } to { opacity: 1; transform: none; } }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes fade-to { to { opacity: .9; } }
   @keyframes draw { to { stroke-dashoffset: 0; } }
   @keyframes shimmer { 0%, 100% { background-position: 100% 0; } 50% { background-position: 0% 0; } }
-  @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes wave { 0%, 100% { transform: skewY(0deg) scaleX(1); } 50% { transform: skewY(-6deg) scaleX(.9); } }
-  @keyframes twinkle { 0%, 100% { transform: scale(.6); opacity: .5; } 50% { transform: scale(1.15); opacity: 1; } }
-  @keyframes drift { from { transform: translateX(-60px); } to { transform: translateX(60px); } }
+  @keyframes nebula { from { transform: rotate(-5deg) scale(1.02); } to { transform: rotate(5deg) scale(1.12); } }
   @keyframes sheen { 0% { left: -60%; } 30%, 100% { left: 130%; } }
   @keyframes halo { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.35, 1.6); opacity: 0; } }
   @keyframes blink { 50% { opacity: 0; } }
   @keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.12); } 100% { transform: scale(1); } }
+  @keyframes liftoff { 0% { transform: none; } 25% { transform: translateY(2px); } 100% { transform: translateY(-60px); opacity: 0; } }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(9px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
 
   @media (max-width: 640px) {
-    :root { --range-h: 44vh; }
     .top { padding: 16px; }
     .where { display: none; }
-    .chips li { font-size: .78rem; padding: 8px 13px; }
-    .foot { flex-direction: column; text-align: center; padding: 16px 16px 20px; }
-  }
-  @media (max-height: 560px) {
-    .chips { display: none; }
+    .foot { flex-direction: column; text-align: center; padding: 12px 16px 18px; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: .001ms !important; animation-delay: 0s !important;
       animation-iteration-count: 1 !important; transition-duration: .001ms !important; transition-delay: 0s !important;
     }
-    .trail-steps { opacity: .9; }
   }
 </style>
 </head>
 <body>
 
-<div class="sky" id="sky" aria-hidden="true"><canvas id="stars"></canvas></div>
-
-<div class="scene" id="scene" aria-hidden="true">
-  <div class="sun"><div class="rays"></div></div>
-
-  <svg class="range" id="range" viewBox="0 0 1440 400" preserveAspectRatio="xMidYMin slice">
-    <defs>
-      <linearGradient id="gFar" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#34407A" />
-        <stop offset=".55" stop-color="#1A2650" />
-        <stop offset="1" stop-color="#0E1834" />
-      </linearGradient>
-      <linearGradient id="gMid" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#1C2A52" />
-        <stop offset=".5" stop-color="#101C38" />
-        <stop offset="1" stop-color="#0A1427" />
-      </linearGradient>
-      <linearGradient id="gRim" x1="0" y1="0" x2="1" y2="0">
-        <stop offset=".18" stop-color="#F6DC94" stop-opacity="0" />
-        <stop offset=".5" stop-color="#F6DC94" stop-opacity=".95" />
-        <stop offset=".82" stop-color="#F6DC94" stop-opacity="0" />
-      </linearGradient>
-      <linearGradient id="gRimFar" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#F0B27A" stop-opacity="0" />
-        <stop offset=".5" stop-color="#F0B27A" stop-opacity=".55" />
-        <stop offset="1" stop-color="#F0B27A" stop-opacity="0" />
-      </linearGradient>
-      <linearGradient id="gTrail" x1="0" y1="1" x2="0" y2="0">
-        <stop offset="0" stop-color="#C8A95C" />
-        <stop offset="1" stop-color="#FFF1C9" />
-      </linearGradient>
-      <radialGradient id="gMist">
-        <stop offset="0" stop-color="#C9B8E8" stop-opacity=".16" />
-        <stop offset="1" stop-color="#C9B8E8" stop-opacity="0" />
-      </radialGradient>
-      <radialGradient id="gClimber">
-        <stop offset="0" stop-color="#FFF6DA" stop-opacity="1" />
-        <stop offset=".35" stop-color="#F6DC94" stop-opacity=".7" />
-        <stop offset="1" stop-color="#E0BD68" stop-opacity="0" />
-      </radialGradient>
-      <filter id="fGlow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" /></filter>
-      <path id="trailPath" d="M735 400 C690 380 650 360 690 340 S800 315 760 290 S640 262 690 235 S820 205 770 180 S660 150 700 128 S760 100 735 88 S712 72 720 64" />
-    </defs>
-
-    <g id="far">
-      <path class="ridge-far" d="M-80 400 L-80 200 L20 170 L110 185 L200 135 L270 160 L360 110 L430 150 L500 128 L560 150 L620 120 L700 145 L780 128 L850 150 L930 112 L1010 150 L1090 125 L1170 160 L1250 118 L1330 150 L1400 138 L1520 175 L1520 400 Z" />
-      <path class="rim" stroke="url(#gRimFar)" stroke-width="1.2" d="M-80 200 L20 170 L110 185 L200 135 L270 160 L360 110 L430 150 L500 128 L560 150 L620 120 L700 145 L780 128 L850 150 L930 112 L1010 150 L1090 125 L1170 160 L1250 118 L1330 150 L1400 138 L1520 175" />
-    </g>
-
-    <g id="mid">
-      <ellipse class="mist" cx="380" cy="235" rx="420" ry="34" fill="url(#gMist)" />
-      <path class="ridge-mid" d="M-80 400 L-80 280 L40 250 L140 262 L240 220 L330 236 L420 190 L500 170 L560 140 L620 108 L670 82 L720 62 L765 86 L810 110 L860 128 L930 165 L1010 190 L1090 182 L1180 225 L1270 215 L1360 245 L1520 240 L1520 400 Z" />
-      <path class="rim" stroke="url(#gRim)" stroke-width="2" d="M240 220 L330 236 L420 190 L500 170 L560 140 L620 108 L670 82 L720 62 L765 86 L810 110 L860 128 L930 165 L1010 190 L1090 182 L1180 225" />
-      <path class="trail-glow" pathLength="1" filter="url(#fGlow)" d="M735 400 C690 380 650 360 690 340 S800 315 760 290 S640 262 690 235 S820 205 770 180 S660 150 700 128 S760 100 735 88 S712 72 720 64" />
-      <path class="trail-steps" d="M735 400 C690 380 650 360 690 340 S800 315 760 290 S640 262 690 235 S820 205 770 180 S660 150 700 128 S760 100 735 88 S712 72 720 64" />
-      <g id="climber" opacity="0">
-        <circle r="13" fill="url(#gClimber)" />
-        <circle r="2.6" fill="#FFF8E4" />
-        <animateMotion id="climb" dur="11s" begin="3s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;.82;1" calcMode="linear">
-          <mpath href="#trailPath" />
-        </animateMotion>
-        <set attributeName="opacity" to="1" begin="3s" />
-      </g>
-      <line x1="720" y1="63" x2="720" y2="34" stroke="#F6DC94" stroke-width="1.6" stroke-linecap="round" />
-      <path class="pennant" d="M720.5 34 L742 39.5 L720.5 45 Z" fill="#E0BD68" />
-      <path class="sparkle" d="M744 22 L746 28 L752 30 L746 32 L744 38 L742 32 L736 30 L742 28 Z" fill="#FFF1C9" />
-      <ellipse class="mist two" cx="1080" cy="262" rx="460" ry="30" fill="url(#gMist)" />
-    </g>
-
-    <g id="near">
-      <path class="ridge-near" d="M-80 400 L-80 270 L30 292 L120 276 L210 300 L300 318 L390 340 L470 362 L540 400 Z" />
-      <path class="ridge-near" d="M1520 400 L1520 280 L1420 296 L1330 282 L1240 306 L1150 322 L1060 348 L980 372 L920 400 Z" />
-    </g>
-  </svg>
-
-  <canvas id="glyphs"></canvas>
-</div>
-
+<div class="space" aria-hidden="true"><div class="nebula"></div><div class="milky"></div></div>
+<canvas id="cosmos" aria-hidden="true"></canvas>
 <div class="flash" aria-hidden="true"></div>
 
 <div class="page" id="page">
@@ -430,24 +323,21 @@
     <p class="kicker">A new kind of school</p>
     <h1 class="hello">Hello.</h1>
     <h2 class="welcome">Welcome to school,
-      <em>reimagined.<svg class="swoosh" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M4 13 C 70 3, 170 3, 296 9" /></svg></em>
+      <em>reimagined.<svg class="swoosh" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="swooshGrad" x1="0" x2="1"><stop offset="0" stop-color="#E0BD68" /><stop offset="1" stop-color="#7FE7F2" /></linearGradient></defs>
+        <path pathLength="1" d="M4 13 C 70 3, 170 3, 296 9" /></svg></em>
     </h2>
     <p class="rotator"><span id="rotator">Two focused hours. The whole curriculum.</span></p>
     <div class="cta-wrap">
       <a class="cta" id="go" href="/ascend/">
         Go to school
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" /></svg>
       </a>
     </div>
   </main>
 
   <div class="spacer"></div>
-
-  <ul class="chips">
-    <li><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 20 9.5 8l4 6 2.5-3.5L22 20z" /></svg>Climb at your own pace</li>
-    <li><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z" /></svg>Master it, then move on</li>
-    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>Earn your afternoon</li>
-  </ul>
+  <p class="hint"><b>✦</b> <span class="hover-only">Hover</span><span class="touch-only">Tap</span> a planet to explore</p>
 
   <footer class="foot">
     <span>&copy; <span id="year">2026</span> J3 Prep · Cape Coral, Florida</span>
@@ -455,15 +345,17 @@
   </footer>
 </div>
 
+<div class="tip" id="tip" aria-hidden="true"><b id="tipName"></b><span id="tipTag"></span></div>
+
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
   <div class="card" id="card">
     <button class="x" id="close" type="button" aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
     </button>
     <div class="badge" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 20 9.5 8l4 6 2.5-3.5L22 20z" /></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c3 2 4.8 5.4 4.8 9.3V16H7.2v-4.2C7.2 7.9 9 4.5 12 2.5z" /><circle cx="12" cy="9.6" r="1.7" /><path d="M7.2 12.6 4.5 15.4v3l2.7-1.4M16.8 12.6l2.7 2.8v3l-2.7-1.4M10.2 18.5 12 21.5l1.8-3" /></svg>
     </div>
-    <h3 id="gateTitle">Enter your school code</h3>
+    <h3 id="gateTitle">Enter your launch code</h3>
     <p class="sub">Four digits. Ask a grown-up if you don't have it.</p>
     <div class="pins">
       <span class="pin" style="--i:0"></span>
@@ -471,7 +363,7 @@
       <span class="pin" style="--i:2"></span>
       <span class="pin" style="--i:3"></span>
       <input id="code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4"
-             autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Four-digit school code" />
+             autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Four-digit launch code" />
     </div>
     <p class="msg" id="msg" aria-live="polite"></p>
     <button class="later" id="later" type="button">Not now</button>
@@ -490,147 +382,420 @@
   const root = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const TAU = Math.PI * 2;
 
   $('year').textContent = new Date().getFullYear();
-
   const isUnlocked = () => { try { return sessionStorage.getItem(KEY) === '1'; } catch (e) { return false; } };
   const remember = () => { try { sessionStorage.setItem(KEY, '1'); } catch (e) {} };
 
-  /* ---------------- scene geometry ---------------- */
-  const scene = $('scene'), range = $('range');
-  const far = $('far'), mid = $('mid'), near = $('near');
-  const VB_W = 1440, VB_H = 400, SUMMIT_X = 720, SUMMIT_Y = 62;
-  let W = 0, H = 0, unit = 1, summitX = 0, summitY = 0;
+  /* ======================= the solar system of school ======================= */
+  const PLANETS = [
+    { name: 'Math',      tag: 'Fractions to algebra',      kind: 'math',    orbit: .30, speed: .26,  size: 1.0,  a: 0.5, glow: '255,206,120',
+      bands: ['#6E4514', '#B9832B', '#F2CC78', '#E0A94A', '#F7DD9A', '#C98E35', '#7A4E17'] },
+    { name: 'Science',   tag: 'Atoms to ecosystems',       kind: 'science', orbit: .47, speed: .19,  size: 1.1,  a: 2.6, glow: '110,226,240',
+      bands: ['#0A3442', '#127F8E', '#5FD9DA', '#2BB3BE', '#9AF0EC', '#178C99', '#0B4252'] },
+    { name: 'Writing',   tag: 'Big ideas, your words',     kind: 'writing', orbit: .64, speed: .145, size: 1.05, a: 4.4, glow: '190,140,255',
+      bands: ['#240C46', '#5B26A0', '#B57CF5', '#8A45D8', '#D7A8FF', '#6A2FB8', '#2E1060'] },
+    { name: 'Reading',   tag: 'Every book, a new world',   kind: 'reading', orbit: .81, speed: .11,  size: 1.25, a: 1.3, glow: '120,175,255',
+      bands: ['#0A2360', '#1748A8', '#2F6FD6', '#3B7DE0', '#2A62C4', '#163F98', '#0A2360'] },
+    { name: 'Athletics', tag: 'Train like a pro',          kind: 'ball',    orbit: .98, speed: .085, size: 1.35, a: 3.5, glow: '255,150,80',
+      bands: ['#A9471A', '#D9622A', '#EE7D36', '#F08A3A', '#E2702C', '#C9561A', '#9E4116'] },
+  ];
+  const BELT_GLYPHS = ['π', '√', '∑', '∞', '÷', '×', '+', '=', '%', 'Δ', 'θ', '½', 'x²', 'A', 'B', 'a', '?', '!', '★', '✦', '7', '3', '9'];
+  const PI_DIGITS = '3.14159265358979323846264338327950288';
 
-  function measure() {
-    W = scene.clientWidth; H = scene.clientHeight;
-    const rh = parseFloat(getComputedStyle(range).height) || H * .42;
-    unit = Math.max(W / VB_W, rh / VB_H);                 // preserveAspectRatio "slice"
-    summitX = (W - VB_W * unit) / 2 + SUMMIT_X * unit;    // xMid
-    summitY = (H - rh) + SUMMIT_Y * unit;                 // YMin
-    root.style.setProperty('--ox', summitX + 'px');
-    root.style.setProperty('--oy', summitY + 'px');
-  }
+  // seeded random so each planet's surface looks the same every visit
+  function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
-  /* ---------------- stars + floating ideas ---------------- */
-  const starsCv = $('stars'), sctx = starsCv.getContext('2d');
-  const glyphCv = $('glyphs'), gctx = glyphCv.getContext('2d');
-  const GLYPHS = ['π', '√', '∑', '∞', '÷', '×', '+', '=', '%', 'Δ', 'θ', '∫', '≈', '½', '¾', 'x²', 'a', 'b', 'y', 'A', 'B', 'Z', '7', '3', '9', '✦', '★', '♪', '?', '!', '⚛', '✎'];
-  let stars = [], glyphs = [], shooter = null, nextShoot = 2500;
-
-  function sizeCanvas(cv, ctx) {
-    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  }
-  function makeStars() {
-    const n = Math.round(Math.min(260, W * H / 5200));
-    stars = Array.from({ length: n }, () => ({
-      x: Math.random() * W, y: Math.pow(Math.random(), 1.6) * H * .7,
-      r: Math.random() * 1.1 + .25, a: Math.random() * .6 + .3,
-      s: Math.random() * .0024 + .0006, p: Math.random() * 6.283,
-    }));
-  }
-  function makeGlyph(anywhere) {
-    const z = Math.random() * .75 + .25;
-    return {
-      x: Math.random() * W, y: anywhere ? Math.random() * H : H + 20 + Math.random() * 80, z,
-      g: GLYPHS[(Math.random() * GLYPHS.length) | 0], size: 11 + z * 24,
-      vy: .14 + z * .4, vx: 0, ph: Math.random() * 6.283,
-      rot: (Math.random() - .5) * .7, vr: (Math.random() - .5) * .004, gold: Math.random() < .6,
+  // A surface texture two periods wide (each period = 360° of longitude) so we can scroll it to spin the planet.
+  const TEX = 256;
+  function makeTexture(p, i) {
+    const c = document.createElement('canvas'); c.width = TEX * 2; c.height = TEX;
+    const g = c.getContext('2d'), R = rng(1234 + i * 977);
+    const lg = g.createLinearGradient(0, 0, 0, TEX);
+    p.bands.forEach((col, k) => lg.addColorStop(k / (p.bands.length - 1), col));
+    g.fillStyle = lg; g.fillRect(0, 0, TEX * 2, TEX);
+    const wrap = (fn) => { for (const o of [-TEX, 0, TEX, TEX * 2]) fn(o); };
+    const wave = (y, amp, k, ph, w, col) => {
+      g.beginPath();
+      for (let x = 0; x <= TEX * 2; x += 4) { const yy = y + amp * Math.sin((x / TEX) * TAU * k + ph); x ? g.lineTo(x, yy) : g.moveTo(x, yy); }
+      g.lineWidth = w; g.strokeStyle = col; g.stroke();
     };
-  }
-  function makeGlyphs() {
-    const n = Math.round(Math.max(18, Math.min(66, W * H / 22000)));
-    glyphs = Array.from({ length: n }, () => makeGlyph(true));
-  }
-
-  let tx = 0, ty = 0, px = 0, py = 0, mx = -1e4, my = -1e4, warp = 0, launching = false, last = 0;
-  addEventListener('pointermove', (e) => {
-    tx = (e.clientX / W - .5) * 2; ty = (e.clientY / H - .5) * 2; mx = e.clientX; my = e.clientY;
-  }, { passive: true });
-  document.addEventListener('pointerleave', () => { tx = ty = 0; mx = my = -1e4; });
-
-  function drawStars(t) {
-    sctx.clearRect(0, 0, W, H);
-    sctx.fillStyle = '#FBF6EA';
-    for (const s of stars) {
-      sctx.globalAlpha = s.a * (.55 + .45 * Math.sin(t * s.s + s.p));
-      sctx.beginPath(); sctx.arc(s.x - px * 5 * s.r, s.y - py * 3 * s.r, s.r, 0, 6.283); sctx.fill();
-    }
-    sctx.globalAlpha = 1;
-    if (reduce) return;
-    if (!shooter && t > nextShoot) {
-      shooter = { x: W * (.35 + Math.random() * .6), y: H * (.04 + Math.random() * .22), vx: -(7 + Math.random() * 4), vy: 2.6 + Math.random() * 1.6, life: 0 };
-      nextShoot = t + 5000 + Math.random() * 8000;
-    }
-    if (shooter) {
-      const s = shooter, len = 14, fade = 1 - s.life / 60;
-      const grad = sctx.createLinearGradient(s.x, s.y, s.x - s.vx * len, s.y - s.vy * len);
-      grad.addColorStop(0, `rgba(255,248,226,${.9 * fade})`); grad.addColorStop(1, 'rgba(255,248,226,0)');
-      sctx.strokeStyle = grad; sctx.lineWidth = 1.6; sctx.lineCap = 'round';
-      sctx.beginPath(); sctx.moveTo(s.x, s.y); sctx.lineTo(s.x - s.vx * len, s.y - s.vy * len); sctx.stroke();
-      s.x += s.vx; s.y += s.vy; s.life++;
-      if (s.life > 60) shooter = null;
-    }
-  }
-
-  function drawGlyphs(t, dt) {
-    gctx.clearRect(0, 0, W, H);
-    gctx.textAlign = 'center'; gctx.textBaseline = 'middle';
-    for (const g of glyphs) {
-      if (!reduce) {
-        g.y -= g.vy * dt * (1 + warp * 16);
-        g.x += (Math.sin(t * .0005 + g.ph) * .2 * g.z + g.vx) * dt; g.vx *= .94;
-        g.rot += g.vr * dt;
-        const dx = g.x - mx, dy = g.y - my, d2 = dx * dx + dy * dy;
-        if (d2 < 16900) { const d = Math.sqrt(d2) || 1, f = 1 - d / 130; g.vx += dx / d * f * .5; g.y += dy / d * f * 1.4; }
-        if (g.y < -40) Object.assign(g, makeGlyph(false));
+    if (p.kind === 'math' || p.kind === 'science' || p.kind === 'writing') {
+      const n = p.kind === 'writing' ? 22 : 16;
+      for (let k = 0; k < n; k++) {
+        const light = R() < .5;
+        const col = p.kind === 'writing'
+          ? (light ? `rgba(255,200,250,${.12 + R() * .2})` : `rgba(40,0,80,${.1 + R() * .2})`)
+          : (light ? `rgba(255,255,255,${.06 + R() * .16})` : `rgba(0,0,0,${.06 + R() * .14})`);
+        wave(R() * TEX, p.kind === 'writing' ? 6 + R() * 10 : 1 + R() * 4, 1 + ((R() * 3) | 0), R() * TAU, 2 + R() * (p.kind === 'writing' ? 7 : 10), col);
       }
-      const top = Math.min(1, Math.max(0, g.y / (H * .35)));
-      gctx.globalAlpha = (.1 + g.z * .38) * (.25 + .75 * top);
-      gctx.save();
-      gctx.translate(g.x - px * 16 * g.z, g.y - py * 8 * g.z);
-      gctx.rotate(g.rot);
-      gctx.font = `${g.z > .6 ? 'italic ' : ''}500 ${g.size}px Fraunces, Georgia, serif`;
-      gctx.fillStyle = g.gold ? '#F2D58C' : '#F7F2E6';
-      if (g.z > .72) { gctx.shadowColor = 'rgba(246,220,148,.8)'; gctx.shadowBlur = 14; }
-      gctx.fillText(g.g, 0, 0);
-      gctx.restore();
+      if (p.kind === 'math') wrap((o) => {   // a great storm spot
+        const sg = g.createRadialGradient(o + 150, 160, 2, o + 150, 160, 26);
+        sg.addColorStop(0, 'rgba(255,240,200,.9)'); sg.addColorStop(.5, 'rgba(210,130,50,.6)'); sg.addColorStop(1, 'rgba(210,130,50,0)');
+        g.fillStyle = sg; g.beginPath(); g.ellipse(o + 150, 160, 30, 13, 0, 0, TAU); g.fill();
+      });
+      if (p.kind === 'science') for (let k = 0; k < 70; k++) { const x = R() * TEX, y = R() * TEX, r = R() * 1.6 + .4; wrap((o) => { g.fillStyle = 'rgba(220,255,255,.55)'; g.beginPath(); g.arc(o + x, y, r, 0, TAU); g.fill(); }); }
     }
-    gctx.globalAlpha = 1;
+    if (p.kind === 'reading') {
+      for (let k = 0; k < 9; k++) {                     // continents
+        const x = R() * TEX, y = 40 + R() * (TEX - 80), s = 14 + R() * 30, col = R() < .5 ? '#2E9E6B' : '#4DB87A';
+        wrap((o) => { g.fillStyle = col; for (let m = 0; m < 7; m++) { g.beginPath(); g.arc(o + x + (R() - .5) * s * 1.6, y + (R() - .5) * s, s * (.35 + R() * .45), 0, TAU); g.fill(); } });
+      }
+      for (let k = 0; k < 14; k++) wave(R() * TEX, 3 + R() * 6, 1 + ((R() * 2) | 0), R() * TAU, 3 + R() * 5, `rgba(255,255,255,${.16 + R() * .22})`);
+      g.fillStyle = 'rgba(240,250,255,.85)'; g.fillRect(0, 0, TEX * 2, 12); g.fillRect(0, TEX - 12, TEX * 2, 12);
+    }
+    if (p.kind === 'ball') {
+      for (let k = 0; k < 2600; k++) { g.fillStyle = `rgba(${R() < .5 ? '90,30,5' : '255,190,140'},${.08 + R() * .12})`; g.fillRect(R() * TEX * 2, R() * TEX, 2, 2); }
+      g.strokeStyle = '#2A1206'; g.lineWidth = 5; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(0, TEX / 2); g.lineTo(TEX * 2, TEX / 2); g.stroke();
+      wrap((o) => {
+        for (const x of [0, TEX / 2]) { g.beginPath(); g.moveTo(o + x, 0); g.lineTo(o + x, TEX); g.stroke(); }
+        for (const [cx, s] of [[TEX * .25, 1], [TEX * .75, -1]]) {
+          g.beginPath();
+          for (let y = 0; y <= TEX; y += 4) { const x = cx + s * TEX * .12 * Math.cos(Math.PI * (y / TEX - .5)); y ? g.lineTo(o + x, y) : g.moveTo(o + x, y); }
+          g.stroke();
+        }
+      });
+    }
+    return c;
+  }
+  PLANETS.forEach((p, i) => { p.tex = makeTexture(p, i); p.spin = Math.random() * TEX; p.pulse = 0; p.rgb = p.glow; });
+
+  /* ============================== canvas setup ============================== */
+  const cv = $('cosmos'), ctx = cv.getContext('2d');
+  let W = 0, H = 0, cx = 0, cy = 0, RX = 0, RY = 0, r0 = 10, FOV = 500, portrait = false;
+  let stars = [], dust = [], belt = [], comet = null, nextComet = 4;
+
+  function layout() {
+    W = innerWidth; H = innerHeight; portrait = W < 700;
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    cx = W / 2;
+    cy = H * (portrait ? .72 : .69);
+    RX = Math.min(W * (portrait ? .45 : .46), 720);
+    RY = RX * (portrait ? .62 : .27);
+    r0 = portrait ? Math.max(12, Math.min(20, W * .04)) : Math.max(12, Math.min(34, Math.max(W, H) * .021));
+    FOV = Math.max(W, H) * .65;
+    root.style.setProperty('--ox', cx + 'px'); root.style.setProperty('--oy', cy + 'px');
+    const nStars = Math.round(Math.min(900, W * H / 1900));
+    stars = Array.from({ length: nStars }, () => newStar(false));
+    dust = Array.from({ length: Math.round(nStars * .6) }, () => ({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * .7 + .2, a: Math.random() * .5 + .15, s: Math.random() * 2 + .5, p: Math.random() * TAU }));
+    belt = Array.from({ length: portrait ? 38 : 64 }, () => ({ a: Math.random() * TAU, o: .725 + (Math.random() - .5) * .07, g: BELT_GLYPHS[(Math.random() * BELT_GLYPHS.length) | 0], s: 8 + Math.random() * 7, gold: Math.random() < .6, rot: Math.random() * TAU }));
+  }
+  function newStar(far) {
+    const tint = Math.random();
+    return { x: (Math.random() * 2 - 1) * 1.3, y: (Math.random() * 2 - 1) * 1.3, z: far ? 1 : Math.random() * .95 + .05, pz: 1,
+      col: tint < .15 ? '170,210,255' : tint < .25 ? '255,220,180' : '255,255,255' };
   }
 
-  function placeLayers() {
-    far.setAttribute('transform', `translate(${(-px * 8).toFixed(2)} ${(-py * 3).toFixed(2)})`);
-    mid.setAttribute('transform', `translate(${(-px * 16).toFixed(2)} ${(-py * 6).toFixed(2)})`);
-    near.setAttribute('transform', `translate(${(-px * 30).toFixed(2)} ${(-py * 9).toFixed(2)})`);
+  /* ============================== interaction ============================== */
+  let mx = -1e4, my = -1e4, tx = 0, ty = 0, px = 0, py = 0;
+  let hovered = null, tapped = null, tapUntil = 0;
+  addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; tx = (mx / W - .5) * 2; ty = (my / H - .5) * 2; if (reduce) schedule(); }, { passive: true });
+  document.addEventListener('pointerleave', () => { mx = my = -1e4; tx = ty = 0; });
+  function hitPlanet(x, y) {
+    let best = null;
+    for (const p of PLANETS) { if (!p.sx) continue; const d = Math.hypot(x - p.sx, y - p.sy); if (d < Math.max(p.r * 1.7, 22) && (!best || p.z > best.z)) best = p; }
+    return best;
+  }
+  addEventListener('pointerdown', (e) => {
+    if (e.target.closest && e.target.closest('a, button, .gate')) return;
+    const p = hitPlanet(e.clientX, e.clientY);
+    if (p) { tapped = p; tapUntil = performance.now() + 3200; p.pulse = 1; schedule(); }
+  });
+
+  /* ================================ drawing ================================ */
+  let last = 0, clock = 0, launching = false, warpAt = 0, rafId = 0;
+
+  function sphere(p, x, y, r) {
+    // spin: draw the texture in vertical strips, squeezed with asin so it wraps like a ball
+    ctx.save();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.clip();
+    const N = 22, half = TEX / 2;
+    for (let i = 0; i < N; i++) {
+      const x0 = -r + (2 * r * i) / N, x1 = -r + (2 * r * (i + 1)) / N;
+      const u0 = (Math.asin(Math.max(-1, x0 / r)) / Math.PI + .5) * half;
+      const u1 = (Math.asin(Math.min(1, x1 / r)) / Math.PI + .5) * half;
+      ctx.drawImage(p.tex, (p.spin % TEX) + u0, 0, Math.max(.5, u1 - u0), TEX, x + x0, y - r, x1 - x0 + .6, 2 * r);
+    }
+    // light from the J3 star
+    let dx = cx - x, dy = cy - y; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+    const sg = ctx.createLinearGradient(x + dx * r, y + dy * r, x - dx * r, y - dy * r);
+    sg.addColorStop(0, 'rgba(255,246,222,.22)'); sg.addColorStop(.42, 'rgba(0,0,0,0)');
+    sg.addColorStop(.72, 'rgba(2,3,14,.6)'); sg.addColorStop(1, 'rgba(2,3,14,.9)');
+    ctx.fillStyle = sg; ctx.fillRect(x - r, y - r, 2 * r, 2 * r);
+    const lg = ctx.createRadialGradient(x, y, r * .5, x, y, r);
+    lg.addColorStop(0, 'rgba(0,0,0,0)'); lg.addColorStop(1, 'rgba(0,0,10,.4)');
+    ctx.fillStyle = lg; ctx.fillRect(x - r, y - r, 2 * r, 2 * r);
+    ctx.restore();
+    // rim light + atmosphere
+    const ang = Math.atan2(dy, dx);
+    ctx.strokeStyle = `rgba(${p.rgb},.75)`; ctx.lineWidth = Math.max(1, r * .06);
+    ctx.beginPath(); ctx.arc(x, y, r - ctx.lineWidth / 2, ang - 1.25, ang + 1.25); ctx.stroke();
+    ctx.globalCompositeOperation = 'lighter';
+    const ag = ctx.createRadialGradient(x, y, r * .9, x, y, r * 1.75);
+    ag.addColorStop(0, `rgba(${p.rgb},.32)`); ag.addColorStop(1, `rgba(${p.rgb},0)`);
+    ctx.fillStyle = ag; ctx.beginPath(); ctx.arc(x, y, r * 1.75, 0, TAU); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
   }
 
-  function frame(t) {
-    const dt = last ? Math.min(3, (t - last) / 16.67) : 1; last = t;
-    if (!launching) { px += (tx - px) * .045; py += (ty - py) * .045; }
-    if (launching) warp = Math.min(1, warp + .012 * dt);
-    drawStars(t); drawGlyphs(t, dt); placeLayers();
-    requestAnimationFrame(frame);
+  function moonOf(p, x, y, r, t, front) {
+    const a = t * .7 + p.orbit * 9, mr = r * .27, ox = Math.cos(a) * r * 2.1, oy = Math.sin(a) * r * .55;
+    if ((Math.sin(a) > 0) !== front) return;
+    const mxp = x + ox, myp = y + oy;
+    const g = ctx.createRadialGradient(mxp - mr * .3, myp - mr * .3, 0, mxp, myp, mr);
+    g.addColorStop(0, '#E9E6F2'); g.addColorStop(.7, '#8C88A0'); g.addColorStop(1, '#4A475E');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(mxp, myp, mr, 0, TAU); ctx.fill();
   }
 
-  function setup() {
-    measure();
-    sizeCanvas(starsCv, sctx); sizeCanvas(glyphCv, gctx);
-    makeStars(); makeGlyphs();
-    if (reduce) { drawStars(0); drawGlyphs(0, 0); }
+  function piRing(p, x, y, r, t, front) {
+    const rx = r * 2.05, ry = r * .5, tilt = -.22;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(tilt);
+    ctx.strokeStyle = `rgba(${p.rgb},${front ? .4 : .22})`; ctx.lineWidth = r * .16;
+    ctx.beginPath(); ctx.ellipse(0, 0, rx * .9, ry * .9, 0, front ? 0 : Math.PI, front ? Math.PI : TAU); ctx.stroke();
+    ctx.font = `600 ${Math.max(7, r * .36)}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const n = PI_DIGITS.length;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * TAU - t * .35, s = Math.sin(a);
+      if ((s > 0) !== front) continue;
+      ctx.fillStyle = `rgba(255,236,190,${front ? .95 : .45})`;
+      ctx.fillText(PI_DIGITS[i], Math.cos(a) * rx * 1.08, s * ry * 1.08);
+    }
+    ctx.restore();
   }
+
+  function atom(p, x, y, r, t, front) {
+    for (let k = 0; k < 3; k++) {
+      const rot = k * Math.PI / 3 + .3, rx = r * 1.85, ry = r * .5;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+      ctx.strokeStyle = `rgba(${p.rgb},${front ? .55 : .25})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, front ? 0 : Math.PI, front ? Math.PI : TAU); ctx.stroke();
+      const a = t * (1.4 + k * .35) + k * 2.1, s = Math.sin(a);
+      if ((s > 0) === front) {
+        const ex = Math.cos(a) * rx, ey = s * ry;
+        const g = ctx.createRadialGradient(ex, ey, 0, ex, ey, r * .38);
+        g.addColorStop(0, 'rgba(230,255,255,1)'); g.addColorStop(.35, `rgba(${p.rgb},.8)`); g.addColorStop(1, `rgba(${p.rgb},0)`);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ex, ey, r * .38, 0, TAU); ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawPlanet(p, t) {
+    const { sx: x, sy: y, r } = p;
+    if (p.alpha <= 0.01) return;
+    ctx.globalAlpha = p.alpha;
+    if (p.kind === 'math') piRing(p, x, y, r, t, false);
+    if (p.kind === 'science') atom(p, x, y, r, t, false);
+    if (p.kind === 'reading' || p.kind === 'ball') moonOf(p, x, y, r, t, false);
+    sphere(p, x, y, r);
+    if (p.kind === 'math') piRing(p, x, y, r, t, true);
+    if (p.kind === 'science') atom(p, x, y, r, t, true);
+    if (p.kind === 'reading' || p.kind === 'ball') moonOf(p, x, y, r, t, true);
+    const lit = p === hovered || p === tapped;
+    if (lit || p.pulse > 0) {
+      const k = p.pulse > 0 ? 1 - p.pulse : 0;
+      ctx.strokeStyle = `rgba(${p.rgb},${lit ? .85 * (1 - k * .6) : p.pulse})`; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(x, y, r * (1.45 + k * 1.6), 0, TAU); ctx.stroke();
+    }
+    if (!lit) {
+      ctx.font = `600 ${portrait ? 9 : 10}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillStyle = `rgba(247,242,230,${.32 + .3 * (p.z + 1) / 2})`;
+      ctx.fillText(p.name.toUpperCase().split('').join(' '), Math.min(W - 34, Math.max(34, x)), y + r * 1.25 + 6);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawSun(t, boost) {
+    const R = r0 * 1.9 * (1 + .035 * Math.sin(t * 1.6)) * (1 + boost * 2.2);
+    ctx.globalCompositeOperation = 'lighter';
+    let g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 11);
+    g.addColorStop(0, 'rgba(255,250,235,.85)'); g.addColorStop(.07, 'rgba(255,224,160,.5)');
+    g.addColorStop(.2, 'rgba(255,160,110,.16)'); g.addColorStop(.45, 'rgba(150,90,230,.06)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(cx - R * 11, cy - R * 11, R * 22, R * 22);
+    // diffraction spikes
+    ctx.save(); ctx.translate(cx, cy);
+    for (let k = 0; k < 8; k++) {
+      ctx.save(); ctx.rotate(t * .03 + k * Math.PI / 4);
+      const L = R * (k % 2 ? 3.4 : 6) * (1 + boost * 4), w = k % 2 ? .8 : 1.4;
+      const sg = ctx.createLinearGradient(0, 0, L, 0);
+      sg.addColorStop(0, 'rgba(255,248,230,.75)'); sg.addColorStop(1, 'rgba(255,248,230,0)');
+      ctx.fillStyle = sg; ctx.beginPath(); ctx.moveTo(0, -w); ctx.lineTo(L, 0); ctx.lineTo(0, w); ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+    g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.55, 'rgba(255,246,222,1)');
+    g.addColorStop(.85, 'rgba(255,214,140,.85)'); g.addColorStop(1, 'rgba(255,190,110,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function drawOrbits(front, fade, spread) {
+    for (const p of PLANETS) {
+      const lit = p === hovered || p === tapped;
+      ctx.strokeStyle = lit ? `rgba(${p.rgb},${front ? .55 : .3})` : `rgba(160,175,255,${(front ? .16 : .08) * fade})`;
+      ctx.lineWidth = lit ? 1.4 : 1;
+      ctx.setLineDash(front ? [] : [2, 6]);
+      ctx.beginPath(); ctx.ellipse(cx, cy, RX * p.orbit * spread, RY * p.orbit * spread, 0, front ? 0 : Math.PI, front ? Math.PI : TAU); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+
+  function drawBelt(front, t, fade, spread) {
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (const b of belt) {
+      const a = b.a + t * .045, s = Math.sin(a);
+      if ((s > 0) !== front) continue;
+      const x = cx + Math.cos(a) * RX * b.o * spread, y = cy + s * RY * b.o * spread, k = 1 + .2 * s;
+      ctx.globalAlpha = (.28 + .3 * (s + 1) / 2) * fade;
+      ctx.fillStyle = b.gold ? '#F2D58C' : '#D9D2FF';
+      ctx.font = `italic 500 ${b.s * k}px Fraunces, Georgia, serif`;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(b.rot + t * .2); ctx.fillText(b.g, 0, 0); ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawStars(dt, speed, warpK) {
+    // far dust: fixed, twinkling
+    ctx.fillStyle = '#FFFFFF';
+    for (const d of dust) {
+      ctx.globalAlpha = d.a * (.6 + .4 * Math.sin(clock * d.s + d.p)) * (1 - warpK);
+      ctx.fillRect(d.x - px * 3, d.y - py * 2, d.r * 2, d.r * 2);
+    }
+    // flying stars, radiating from the J3 star
+    const vx = cx + px * 18, vy = cy + py * 10;
+    ctx.lineCap = 'round';
+    for (const s of stars) {
+      s.pz = s.z;
+      s.z -= speed * dt;
+      if (s.z <= .02) { Object.assign(s, newStar(true)); continue; }
+      const k = FOV / s.z, x = vx + s.x * k, y = vy + s.y * k;
+      if (x < -50 || x > W + 50 || y < -50 || y > H + 50) { Object.assign(s, newStar(true)); continue; }
+      const near = 1 - s.z, alpha = Math.min(1, near * 1.2 + .1);
+      if (warpK > .02) {
+        const tail = Math.min(1, s.z + speed * (.08 + warpK * .4));
+        const k2 = FOV / tail;
+        ctx.strokeStyle = `rgba(${warpK > .45 ? (s.col === '255,220,180' ? '215,190,255' : '200,232,255') : s.col},${Math.min(1, alpha + warpK * .55)})`;
+        ctx.lineWidth = .7 + near * (2.2 + warpK * 1.6);
+        ctx.beginPath(); ctx.moveTo(vx + s.x * k2, vy + s.y * k2); ctx.lineTo(x, y); ctx.stroke();
+      } else {
+        const r = .3 + near * 1.7;
+        ctx.globalAlpha = alpha; ctx.fillStyle = `rgb(${s.col})`;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawRings(warpK, sec) {
+    // hyperspace rings pulsing out of the J3 star
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 4; i++) {
+      const ph = (sec * 1.3 + i / 4) % 1, rr = ph * ph * Math.max(W, H) * 1.1;
+      ctx.strokeStyle = `rgba(${i % 2 ? '180,140,255' : '127,231,242'},${(1 - ph) * .4 * warpK})`;
+      ctx.lineWidth = 1 + ph * 7;
+      ctx.beginPath(); ctx.ellipse(cx, cy, rr, rr * .62, 0, 0, TAU); ctx.stroke();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function drawComet(dt) {
+    if (reduce || launching) return;
+    if (!comet && clock > nextComet) {
+      const fromLeft = Math.random() < .5;
+      comet = { x: fromLeft ? -40 : W + 40, y: H * (.06 + Math.random() * .3), vx: (fromLeft ? 1 : -1) * (W * .22), vy: H * (.05 + Math.random() * .06), life: 0 };
+      nextComet = clock + 7 + Math.random() * 9;
+    }
+    if (!comet) return;
+    comet.x += comet.vx * dt; comet.y += comet.vy * dt; comet.life += dt;
+    const len = .55, tx2 = comet.x - comet.vx * len, ty2 = comet.y - comet.vy * len;
+    const g = ctx.createLinearGradient(comet.x, comet.y, tx2, ty2);
+    g.addColorStop(0, 'rgba(220,250,255,.9)'); g.addColorStop(.25, 'rgba(127,231,242,.35)'); g.addColorStop(1, 'rgba(127,231,242,0)');
+    ctx.strokeStyle = g; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(comet.x, comet.y); ctx.lineTo(tx2, ty2); ctx.stroke();
+    ctx.globalCompositeOperation = 'lighter';
+    const hg = ctx.createRadialGradient(comet.x, comet.y, 0, comet.x, comet.y, 10);
+    hg.addColorStop(0, 'rgba(255,255,255,1)'); hg.addColorStop(1, 'rgba(127,231,242,0)');
+    ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(comet.x, comet.y, 10, 0, TAU); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    if (comet.life > 6 || comet.x < -200 || comet.x > W + 200) comet = null;
+  }
+
+  const tip = $('tip'), tipName = $('tipName'), tipTag = $('tipTag');
+  let tipFor = null;
+  function updateTip(now) {
+    if (tapped && now > tapUntil) tapped = null;
+    const p = launching ? null : (hovered || tapped);
+    if (p !== tipFor) {
+      tipFor = p;
+      if (p) { tipName.textContent = p.name; tipTag.textContent = p.tag; tip.style.setProperty('--c', p.rgb); }
+      tip.classList.toggle('show', !!p);
+    }
+    if (p) { tip.style.left = Math.min(W - 90, Math.max(90, p.sx)) + 'px'; tip.style.top = (p.sy - p.r * 1.6 - 10) + 'px'; }
+    document.body.style.cursor = hovered && !launching ? 'pointer' : '';
+  }
+
+  function frame(now) {
+    rafId = 0;
+    const dt = reduce ? 0 : (last ? Math.min(.05, (now - last) / 1000) : .016); last = now;
+    clock += dt;
+    px += (tx - px) * .04; py += (ty - py) * .04;
+
+    let warpK = 0, speed = .045, spread = 1, fade = 1, boost = 0, shakeX = 0, shakeY = 0;
+    if (launching) {
+      const w = (now - warpAt) / 1000;
+      warpK = Math.min(1, w / 1.7);
+      speed = .045 + Math.pow(warpK, 2.6) * 3.2;
+      spread = 1 + Math.pow(Math.min(1, w / 1.5), 2) * 3.5;
+      fade = Math.max(0, 1 - w / 1.1);
+      boost = Math.pow(Math.min(1, w / 2), 2);
+      if (w > .5 && w < 1.9) { shakeX = (Math.random() - .5) * 4 * warpK; shakeY = (Math.random() - .5) * 4 * warpK; }
+    }
+
+    ctx.setTransform(DPR, 0, 0, DPR, shakeX * DPR, shakeY * DPR);
+    ctx.clearRect(-10, -10, W + 20, H + 20);
+    drawStars(dt, speed, warpK);
+    if (launching) drawRings(warpK, (now - warpAt) / 1000);
+    drawComet(dt);
+
+    // place planets (shift the system a touch with the pointer for depth)
+    const ocx = cx, ocy = cy; cx = ocx - px * 10; cy = ocy - py * 6;
+    hovered = launching ? null : hitPlanet(mx, my);
+    for (const p of PLANETS) {
+      p.a += p.speed * dt * (p === hovered || p === tapped ? .12 : 1);
+      p.spin += dt * 14 * (1.4 - p.orbit);
+      p.pulse = Math.max(0, p.pulse - dt * 1.4);
+      const s = Math.sin(p.a);
+      p.z = s;
+      p.sx = cx + Math.cos(p.a) * RX * p.orbit * spread;
+      p.sy = cy + s * RY * p.orbit * spread;
+      p.r = r0 * p.size * (1 + .2 * s) * (1 + (spread - 1) * 1.4);
+      p.alpha = fade;
+    }
+    const sorted = PLANETS.slice().sort((a, b) => a.z - b.z);
+
+    drawOrbits(false, fade, spread);
+    drawBelt(false, clock, fade, spread);
+    for (const p of sorted) if (p.z < 0) drawPlanet(p, clock);
+    drawSun(clock, boost);
+    drawOrbits(true, fade, spread);
+    drawBelt(true, clock, fade, spread);
+    for (const p of sorted) if (p.z >= 0) drawPlanet(p, clock);
+    cx = ocx; cy = ocy;
+
+    updateTip(now);
+    if (!reduce || launching) schedule();
+  }
+  function schedule() { if (!rafId) rafId = requestAnimationFrame(frame); }
+
   let rt;
-  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(setup, 120); });
-  setup();
-  if (reduce) {
-    const climber = $('climber'); climber.parentNode.removeChild(climber);
-    if (document.fonts) document.fonts.ready.then(() => drawGlyphs(0, 0));
-  } else {
-    requestAnimationFrame(frame);
-  }
+  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { layout(); schedule(); }, 120); });
+  layout();
+  schedule();
+  if (document.fonts) document.fonts.ready.then(schedule);
 
-  /* ---------------- rotating line ---------------- */
+  /* ============================== rotating line ============================== */
   const LINES = [
     'Two focused hours. The whole curriculum.',
     'Master every skill, then move on.',
@@ -651,9 +816,10 @@
     }, 450);
   }, 3600);
 
-  /* ---------------- school code ---------------- */
+  /* ============================== launch code ============================== */
   const gate = $('gate'), card = $('card'), input = $('code'), msg = $('msg'), go = $('go');
   const pins = Array.from(document.querySelectorAll('.pin'));
+  let timers = [];
 
   function paint() {
     const v = input.value, focused = document.activeElement === input;
@@ -671,20 +837,23 @@
     paint();
   }
   function closeGate() {
+    timers.forEach(clearTimeout); timers = [];
     gate.classList.remove('open');
     input.blur();
-    go.focus({ preventScroll: true });
+    if (!launching) go.focus({ preventScroll: true });
   }
   function check() {
     if (input.value === CODE) {
       remember();
       card.classList.add('ok');
-      msg.textContent = 'You’re in. Heading up the mountain…';
       input.blur(); paint();
-      setTimeout(launch, reduce ? 150 : 700);
+      if (reduce) { msg.textContent = 'Launch code accepted.'; timers.push(setTimeout(launch, 200)); return; }
+      const steps = ['Launch code accepted', '3…', '2…', '1…'];
+      steps.forEach((s, i) => timers.push(setTimeout(() => { msg.textContent = s; }, i * 380)));
+      timers.push(setTimeout(launch, steps.length * 380));
     } else {
       card.classList.remove('wrong'); void card.offsetWidth; card.classList.add('wrong');
-      msg.textContent = 'Not quite — try again.';
+      msg.textContent = 'Hmm, that’s not it — try again.';
       setTimeout(() => { input.value = ''; paint(); }, 450);
     }
   }
@@ -708,20 +877,23 @@
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && gate.classList.contains('open')) closeGate(); });
 
   function launch() {
-    launching = true; tx = ty = 0;
-    measure();
-    gate.classList.remove('open');
-    document.body.classList.add('launch');
-    setTimeout(() => { location.href = DEST; }, reduce ? 120 : 1950);
+    if (launching) return;
+    launching = true; warpAt = performance.now(); tx = ty = 0;
+    tapped = null;
+    gate.classList.remove('open'); input.blur();
+    document.body.classList.add('warp');
+    schedule();
+    setTimeout(() => { location.href = DEST; }, reduce ? 150 : 2250);
   }
 
-  // Coming "back" from Ascend restores this page from cache — reset the climb.
+  // Coming "back" from Ascend restores this page from cache — power down the warp drive.
   addEventListener('pageshow', (e) => {
     if (!e.persisted) return;
-    launching = false; warp = 0;
-    document.body.classList.remove('launch');
+    launching = false;
+    document.body.classList.remove('warp');
     gate.classList.remove('open'); card.classList.remove('ok', 'wrong');
     input.value = ''; msg.textContent = ''; paint();
+    layout(); schedule();
   });
 })();
 </script>
