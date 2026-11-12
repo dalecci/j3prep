@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lead Lines · Worship Guitar</title>
+<meta name="description" content="Melodic lead guitar line ideas for spontaneous worship. Pick a key, a progression and a feel; get lines in Nashville numbers, note names and tab.">
+<meta name="theme-color" content="#05071A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lead Lines">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="brand" href="./" aria-label="Lead Lines home">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="8" fill="var(--cream)"/><ellipse cx="32" cy="32" rx="25" ry="9" fill="none" stroke="var(--gold)" stroke-width="3" transform="rotate(-18 32 32)"/><circle cx="54" cy="25" r="4" fill="var(--cyan)"/></svg>
+    <span class="brand-text"><b>Lead Lines</b><small>Worship guitar</small></span>
+  </a>
+  <div class="top-actions">
+    <button class="keypill" id="keyPill" aria-label="Change key"><small>Key</small><b id="keyPillName">F</b></button>
+    <button class="iconbtn stage-btn" id="stageBtn" aria-label="Stage mode">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/></svg>
+      <span>Stage</span>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+  <!-- LINES -->
+  <section class="view" data-view="lines" aria-label="Lead lines">
+    <div class="setup card" id="setup">
+      <button class="setup-summary" id="setupToggle" aria-expanded="true">
+        <span class="summary-text" id="setupSummary"></span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="setup-body" id="setupBody">
+        <div class="field">
+          <div class="label">Key</div>
+          <div class="keygrid" id="keyGrid" role="radiogroup" aria-label="Key"></div>
+        </div>
+        <div class="field">
+          <div class="label">Progression <span class="hint">numbers or chord names</span></div>
+          <div class="chips scroll" id="presets"></div>
+          <div class="prog-input">
+            <input id="progInput" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="1 5 6m 4  or  F C Dm Bb">
+          </div>
+          <div class="parsed" id="parsed" aria-live="polite"></div>
+          <div class="chips scroll recents" id="recents"></div>
+        </div>
+        <div class="field">
+          <div class="label">Feel</div>
+          <div class="feelgrid" id="feelGrid" role="radiogroup" aria-label="Feel"></div>
+        </div>
+        <div class="field">
+          <div class="label">Intensity <span class="hint" id="intensityName"></span></div>
+          <div class="intensity" id="intensity" role="radiogroup" aria-label="Intensity"></div>
+        </div>
+        <div class="field">
+          <div class="label">Who's playing?</div>
+          <div class="band" id="band"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card board-card">
+      <div class="board-head">
+        <div class="chips chordchips" id="chordChips"></div>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div class="board-wrap" id="linesBoard"></div>
+    </div>
+
+    <div class="guide-banner" id="guideBanner"></div>
+
+    <div class="ideas" id="ideas" aria-live="polite"></div>
+
+    <div class="more-row">
+      <button class="btn big primary" id="anotherBtn"><span>↻</span> Another idea</button>
+      <button class="btn big ghost ai" id="aiBtn"><span>✦</span> More with AI</button>
+    </div>
+    <p class="ai-status" id="aiStatus" aria-live="polite"></p>
+
+    <details class="card guidance" id="guidance" open>
+      <summary><span>The room comes first</span><span class="chev" aria-hidden="true"></span></summary>
+      <ul>
+        <li><b>Play in the leader's breaths.</b> Stop when they sing.</li>
+        <li><b>Listen in this order:</b> leader, room, keys, band, me.</li>
+        <li><b>If keys has the melody:</b> pedal tones, swells, frets 12 and up, or silence. Answer the keys' phrases; never overlap them.</li>
+        <li><b>Tone:</b> neck pickup, clean, dotted-eighth delay synced to tempo, long reverb, volume swells.</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- NECK -->
+  <section class="view" data-view="neck" aria-label="Neck" hidden>
+    <div class="card">
+      <div class="neck-title">
+        <h1>Every note in <em id="neckKey">F</em></h1>
+        <p class="muted">Each dot shows its Nashville number. Tap a dot to hear it.</p>
+      </div>
+      <div class="keygrid" id="neckKeyGrid" role="radiogroup" aria-label="Key"></div>
+      <div class="neck-controls">
+        <div class="seg" id="labelSeg" role="radiogroup" aria-label="Labels"></div>
+        <div class="toggles" id="neckToggles"></div>
+      </div>
+      <div class="chips chordchips" id="neckChords"></div>
+      <div class="shape-facts" id="shapeFacts"></div>
+    </div>
+    <div class="card board-card tall">
+      <div class="board-wrap" id="neckBoard"></div>
+    </div>
+  </section>
+
+  <!-- PRACTICE -->
+  <section class="view" data-view="practice" aria-label="Practice" hidden>
+    <div class="card practice-now">
+      <div class="now-top">
+        <label class="select-wrap"><span class="sr">Line to practice</span><select id="practiceLine"></select></label>
+      </div>
+      <div class="now-chord">
+        <div class="now-label">Now</div>
+        <div class="now-name" id="nowChord">–</div>
+        <div class="now-num" id="nowNum"></div>
+        <div class="now-note" id="nowNote"></div>
+      </div>
+      <div class="beats" id="beats"></div>
+      <div class="mic-meter" id="micMeter" hidden><div class="mic-ring" id="micRing"><b id="micNote">–</b><small id="micCents"></small></div><p id="micMsg">Play the highlighted note</p></div>
+    </div>
+    <div class="transport card">
+      <button class="playbtn" id="playBtn" aria-label="Play"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l11-6.5z"/><g class="i-stop"><rect x="6" y="6" width="12" height="12" rx="2"/></g></svg></button>
+      <button class="tap" id="tapBtn" aria-label="Tap tempo"><b>TAP</b><small>tempo</small></button>
+      <div class="bpm">
+        <button class="iconbtn" id="bpmDown" aria-label="Slower">−</button>
+        <div><b id="bpmVal">68</b><small id="bpmUnit">BPM ♩</small></div>
+        <button class="iconbtn" id="bpmUp" aria-label="Faster">+</button>
+      </div>
+      <div class="transport-opts">
+        <div class="seg" id="meterSeg" role="radiogroup" aria-label="Time signature"></div>
+        <div class="seg" id="soundSeg" role="radiogroup" aria-label="Sound"></div>
+        <div class="toggles" id="practiceToggles"></div>
+      </div>
+    </div>
+    <div class="card board-card">
+      <div class="board-wrap" id="practiceBoard"></div>
+    </div>
+    <div class="card">
+      <div class="tab" id="practiceTab"></div>
+    </div>
+  </section>
+
+  <!-- TRAIN -->
+  <section class="view" data-view="train" aria-label="Train" hidden>
+    <div class="drill-pick seg" id="drillSeg" role="radiogroup" aria-label="Drill"></div>
+    <div id="drill"></div>
+  </section>
+
+  <!-- SAVED -->
+  <section class="view" data-view="saved" aria-label="Saved" hidden>
+    <div class="card">
+      <h2>Setlist</h2>
+      <p class="muted">Save this key, progression and capo as a song. Tap a song on stage to load it.</p>
+      <form class="inline-form" id="songForm"><input id="songName" placeholder="Song name" autocomplete="off" required><button class="btn primary">Save song</button></form>
+      <ol class="list" id="songs"></ol>
+    </div>
+    <div class="card">
+      <h2>Favorite lines</h2>
+      <ol class="list" id="favs"></ol>
+    </div>
+    <div class="card">
+      <h2>Settings</h2>
+      <label class="field-label" for="aiKey">AI key (optional)</label>
+      <p class="muted small">Powers “More with AI”. It stays on this device and is sent only to Anthropic. Everything else works without it, offline.</p>
+      <form class="inline-form" id="aiKeyForm"><input id="aiKey" type="password" placeholder="sk-ant-…" autocomplete="off"><button class="btn">Save</button></form>
+      <div class="settings-row">
+        <button class="btn ghost danger" id="clearData">Clear all saved data</button>
+        <span class="muted small" id="offlineState"></span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="tabbar" aria-label="Sections">
+  <button data-go="lines" aria-label="Lines"><svg viewBox="0 0 24 24"><path d="M3 17c3-6 6 2 9-4s6 2 9-5"/></svg><span>Lines</span></button>
+  <button data-go="neck" aria-label="Neck"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 10h18M3 14h18M3 18h18M7 4v16M13 4v16"/></svg><span>Neck</span></button>
+  <button data-go="practice" aria-label="Practice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg><span>Practice</span></button>
+  <button data-go="train" aria-label="Train"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><span>Train</span></button>
+  <button data-go="saved" aria-label="Saved"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>Saved</span></button>
+</nav>
+
+<!-- STAGE MODE -->
+<div class="stage" id="stage" hidden role="dialog" aria-modal="true" aria-label="Stage mode">
+  <div class="stage-top">
+    <button class="iconbtn" id="stageClose" aria-label="Exit stage mode">✕</button>
+    <div class="stage-meta" id="stageMeta"></div>
+    <div class="stage-count" id="stageCount"></div>
+  </div>
+  <div class="stage-body" id="stageBody"></div>
+  <div class="stage-bottom">
+    <button class="iconbtn huge" id="stagePrev" aria-label="Previous idea">‹</button>
+    <button class="playbtn" id="stagePlay" aria-label="Play"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l11-6.5z"/><g class="i-stop"><rect x="6" y="6" width="12" height="12" rx="2"/></g></svg></button>
+    <button class="btn big primary" id="stageAnother">↻ Another</button>
+    <button class="iconbtn huge" id="stageNext" aria-label="Next idea">›</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

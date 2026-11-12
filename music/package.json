@@ -1,0 +1,9 @@
+{
+  "name": "worship-lead-lines",
+  "private": true,
+  "type": "module",
+  "description": "Worship lead guitar line generator. Static site, no dependencies.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
