@@ -1,5 +1,5 @@
 // Offline support: the whole app works with no signal on stage.
-const VERSION = 'wll-v1';
+const VERSION = 'wll-v3';
 const SHELL = [
   './', './index.html', './styles.css', './app.js', './theory.js', './fretboard.js', './lines.js',
   './board.js', './audio.js', './ai.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png',

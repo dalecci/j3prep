@@ -30,11 +30,15 @@ export function boardSVG(opts) {
   wires[startWire] = a;
   for (let n = startWire + 1; n <= f1; n++) { a += base * Math.pow(0.968, n - 1) * (mini ? 0.9 : 1); wires[n] = a; }
   const length = a + pad;
+  // left-handed: mirror the neck (along the neck when horizontal, across the strings when vertical)
+  const mirrorAlong = !!o.lefty && !v;
+  const dir = mirrorAlong ? -1 : 1;
+  if (mirrorAlong) for (const k of Object.keys(wires)) wires[k] = length - wires[k];
   const cross = sp * 5 + pad * 2 + (v ? 0 : 0);
   const W = v ? cross + edge : length;
   const H = v ? length : cross + edge;
-  const along = (fret) => (fret === 0 ? wires[0] - openW / 2 : (wires[fret - 1] + wires[fret]) / 2);
-  const crossPos = (s) => (v ? edge + pad + s * sp : pad + (5 - s) * sp);
+  const along = (fret) => (fret === 0 ? wires[0] - dir * openW / 2 : (wires[fret - 1] + wires[fret]) / 2);
+  const crossPos = (s) => (v ? edge + pad + (o.lefty ? 5 - s : s) * sp : pad + (5 - s) * sp);
   const xy = (s, fret) => (v ? [crossPos(s), along(fret)] : [along(fret), crossPos(s)]);
   const kp = keyPc(o.key);
 
@@ -50,7 +54,7 @@ export function boardSVG(opts) {
 
   // neck
   const n0 = wires[startWire], n1 = wires[f1];
-  const top = crossPos(v ? 0 : 5) - sp * 0.55, bot = crossPos(v ? 5 : 0) + sp * 0.55;
+  const top = Math.min(crossPos(0), crossPos(5)) - sp * 0.55, bot = Math.max(crossPos(0), crossPos(5)) + sp * 0.55;
   svg.appendChild(rect(v, n0, n1, top, bot, { fill: `url(#wood${v ? 'v' : 'h'})`, rx: 6, class: 'neck' }));
 
   // inlays
@@ -74,8 +78,8 @@ export function boardSVG(opts) {
       svg.appendChild(z);
       if (!mini) {
         const z0 = wires[lo - 1] ?? wires[startWire];
-        const [tx, ty] = v ? [Math.max(c1, c2) + sp * 0.48 - 6, z0 + 12] : [wires[hi] - 6, Math.max(c1, c2) + sp * 0.48 - 5];
-        svg.appendChild(text(tx, ty, 'PLAY HERE', { class: 'zone-label', 'text-anchor': 'end' }));
+        const [tx, ty] = v ? [Math.max(c1, c2) + sp * 0.48 - 6, z0 + 12] : [wires[hi] - dir * 6, Math.max(c1, c2) + sp * 0.48 - 5];
+        svg.appendChild(text(tx, ty, 'PLAY HERE', { class: 'zone-label', 'text-anchor': v || dir > 0 ? 'end' : 'start' }));
       }
     }
   }
@@ -85,7 +89,7 @@ export function boardSVG(opts) {
     const b = o.box;
     if (b + 3 <= f1 && b >= f0) {
       const s1 = wires[Math.max(b - 1, startWire)] ?? wires[startWire];
-      svg.appendChild(rect(v, b === 0 ? wires[0] - openW : s1, wires[Math.min(b + 3, f1)], top + 3, bot - 3, { class: 'shape-box', rx: 12 }));
+      svg.appendChild(rect(v, b === 0 ? wires[0] - dir * openW : s1, wires[Math.min(b + 3, f1)], top + 3, bot - 3, { class: 'shape-box', rx: 12 }));
     }
   }
   if (o.sky && !mini) {
@@ -103,13 +107,13 @@ export function boardSVG(opts) {
   }
   // capo
   if (o.capo > 0 && o.capo >= f0 && o.capo <= f1) {
-    const m = wires[o.capo] - (mini ? 5 : 9);
+    const m = wires[o.capo] - dir * (mini ? 5 : 9);
     svg.appendChild(rect(v, m - (mini ? 3 : 6), m + (mini ? 3 : 6), top - 4, bot + 4, { class: 'capo', rx: 4 }));
   }
   // strings
   for (let s = 0; s < 6; s++) {
     const c = crossPos(s);
-    svg.appendChild(line(v, f0 === 0 ? wires[0] - openW : n0, n1, c, c, { class: 'string', 'stroke-width': mini ? 0.6 + (5 - s) * 0.18 : 0.9 + (5 - s) * 0.35, swap: true }));
+    svg.appendChild(line(v, f0 === 0 ? wires[0] - dir * openW : n0, n1, c, { class: 'string', 'stroke-width': mini ? 0.6 + (5 - s) * 0.18 : 0.9 + (5 - s) * 0.35, swap: true }));
   }
   // fret numbers (relative to capo)
   if (!mini) {
@@ -208,6 +212,8 @@ function circle(cx, cy, r, attrs) { return el('circle', { cx, cy, r, ...attrs })
 function text(x, y, t, attrs) { const e = el('text', { x, y, ...attrs }); e.textContent = t; return e; }
 // rect spanning [a0,a1] along the neck and [c0,c1] across it
 function rect(v, a0, a1, c0, c1, attrs) {
+  [a0, a1] = [Math.min(a0, a1), Math.max(a0, a1)];
+  [c0, c1] = [Math.min(c0, c1), Math.max(c0, c1)];
   const [x, y, w, h] = v ? [c0, a0, c1 - c0, a1 - a0] : [a0, c0, a1 - a0, c1 - c0];
   return el('rect', { x, y, width: Math.max(0, w), height: Math.max(0, h), ...attrs });
 }
